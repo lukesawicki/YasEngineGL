@@ -1,9 +1,9 @@
 #ifndef YASENGINEGL_HPP
 #define YASENGINEGL_HPP
-#include<Windows.h>
-#include <GL/GL.h>
 #include<fstream>
 #include<iostream>
+#include<Windows.h>
+#include<GL/GL.h>
 #include"TimePicker.hpp"
 
 //-----------------------------------------------------------------------------|---------------------------------------|
@@ -25,8 +25,8 @@ class YasEngineGL
         // Windows API
         int windowXposition                 = 10;//TODO take system width
         int windowYposition                 = 10;//TODO teke system height
-        int windowWidth                     = 1280;
-        int windowHeight                    = 720;
+        int windowWidth                     = 640;
+        int windowHeight                    = 360;
         WNDCLASSEX windowClassEx;
         HWND windowHandle;
         HINSTANCE applicationHandle;

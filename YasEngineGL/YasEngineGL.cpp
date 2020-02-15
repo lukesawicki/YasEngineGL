@@ -3,6 +3,9 @@
 //-----------------------------------------------------------------------------|---------------------------------------|
 //                                                                            80                                     120
 
+const char* YasEngineGL::engineName = "YasEngine";
+const char* YasEngineGL::applicationName = "YasEngine Demo Application";
+
 LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch(message)
@@ -10,6 +13,7 @@ LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         case WM_CREATE:
         
         {
+            // This part of source code from https://www.khronos.org/opengl/wiki/Creating_an_OpenGL_Context_(WGL)
             PIXELFORMATDESCRIPTOR pfd =
             {
                 sizeof(PIXELFORMATDESCRIPTOR),
@@ -33,19 +37,24 @@ LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
         
             HDC ourWindowHandleToDeviceContext = GetDC(hWnd);
 
-            int  letWindowsChooseThisPixelFormat;
+            int letWindowsChooseThisPixelFormat;
             letWindowsChooseThisPixelFormat = ChoosePixelFormat(ourWindowHandleToDeviceContext, &pfd); 
             SetPixelFormat(ourWindowHandleToDeviceContext,letWindowsChooseThisPixelFormat, &pfd);
 
             HGLRC ourOpenGLRenderingContext = wglCreateContext(ourWindowHandleToDeviceContext);
             wglMakeCurrent (ourWindowHandleToDeviceContext, ourOpenGLRenderingContext);
+            
+            //#define GL_VENDOR                         0x1F00
+            //#define GL_RENDERER                       0x1F01
+            //#define GL_VERSION                        0x1F02
+            //#define GL_EXTENSIONS                     0x1F03
 
-            //std::cout << glGetString(GL_VERSION) << std::endl;
-
-            //MessageBoxA(0,(char*)glGetString(GL_VERSION), "OPENGL VERSION",0);
+            std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
+            std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
+            std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
 
             wglDeleteContext(ourOpenGLRenderingContext);
-            //PostQuitMessage(0);
+
         }
         break;
 
@@ -62,9 +71,6 @@ LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
-
-const char* YasEngineGL::engineName = "YasEngine";
-const char* YasEngineGL::applicationName = "YasEngine Demo Application";
 
 YasEngineGL::YasEngineGL(HINSTANCE hInstance)
 {
