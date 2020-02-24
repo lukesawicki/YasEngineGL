@@ -3,7 +3,9 @@
 #include<fstream>
 #include<iostream>
 #include<Windows.h>
-#include<GL/GL.h>
+#include <gl/gl.h>
+#include <glext.h>
+#include <wglext.h>
 #include"TimePicker.hpp"
 
 //-----------------------------------------------------------------------------|---------------------------------------|
@@ -15,8 +17,25 @@ class YasEngineGL
 {
     public:
         YasEngineGL(HINSTANCE hInstance);
-        void prepareWindow();
-        void run();
+        ATOM registerWindowClass(HINSTANCE hInstance);
+        
+        DWORD style;
+
+        struct Config {
+		    int width;
+		    int	height;
+		    int posX;
+		    int posY;
+		    bool windowed;
+	    } config;
+
+        void adjustSize();
+	    void center();
+        void render();
+        void swapBuffers();
+        void prepareWindow(int nCmdShow);
+        void run(int nCmdShow);
+        void destroy();
     
     private:
         static const char* engineName;
@@ -27,10 +46,13 @@ class YasEngineGL
         int windowYposition                 = 10;//TODO teke system height
         int windowWidth                     = 640;
         int windowHeight                    = 360;
-        WNDCLASSEX windowClassEx;
+
+        //WNDCLASSEX windowClassEx;
         HWND windowHandle;
         HINSTANCE applicationHandle;
-
+        LPTSTR windowClassName; // Name
+        HDC	deviceContext;
+        HGLRC renderingContext;			// Rendering Context
 };
 
 #endif

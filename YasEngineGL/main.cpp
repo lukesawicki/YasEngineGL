@@ -20,7 +20,7 @@ _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
 	YasEngineGL yasEngineGl = YasEngineGL(hInstance);
-	yasEngineGl.run();
+	yasEngineGl.run(nShowCmd);
 	system("PAUSE");
 	return 0;
 }

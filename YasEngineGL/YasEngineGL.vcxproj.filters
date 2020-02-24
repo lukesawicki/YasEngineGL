@@ -35,5 +35,8 @@
     <ClInclude Include="TimePicker.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="YasLog.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

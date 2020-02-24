@@ -8,72 +8,29 @@ const char* YasEngineGL::applicationName = "YasEngine Demo Application";
 
 LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
-	{
-        case WM_CREATE:
-        
-        {
-            // This part of source code from https://www.khronos.org/opengl/wiki/Creating_an_OpenGL_Context_(WGL)
-            PIXELFORMATDESCRIPTOR pfd =
-            {
-                sizeof(PIXELFORMATDESCRIPTOR),
-                1,
-                PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,    //Flags
-                PFD_TYPE_RGBA,        // The kind of framebuffer. RGBA or palette.
-                32,                   // Colordepth of the framebuffer.
-                0, 0, 0, 0, 0, 0,
-                0,
-                0,
-                0,
-                0, 0, 0, 0,
-                24,                   // Number of bits for the depthbuffer
-                8,                    // Number of bits for the stencilbuffer
-                0,                    // Number of Aux buffers in the framebuffer.
-                PFD_MAIN_PLANE,
-                0,
-                0, 0, 0
-            };
-
-        
-            HDC ourWindowHandleToDeviceContext = GetDC(hWnd);
-
-            int letWindowsChooseThisPixelFormat;
-            letWindowsChooseThisPixelFormat = ChoosePixelFormat(ourWindowHandleToDeviceContext, &pfd); 
-            SetPixelFormat(ourWindowHandleToDeviceContext,letWindowsChooseThisPixelFormat, &pfd);
-
-            HGLRC ourOpenGLRenderingContext = wglCreateContext(ourWindowHandleToDeviceContext);
-            wglMakeCurrent (ourWindowHandleToDeviceContext, ourOpenGLRenderingContext);
-            
-            //#define GL_VENDOR                         0x1F00
-            //#define GL_RENDERER                       0x1F01
-            //#define GL_VERSION                        0x1F02
-            //#define GL_EXTENSIONS                     0x1F03
-
-            std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
-            std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
-            std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
-
-            wglDeleteContext(ourOpenGLRenderingContext);
-
-        }
-        break;
-
-		case WM_DISPLAYCHANGE:
+		switch (message) {
+		case WM_KEYDOWN:
+			if (wParam == VK_ESCAPE) {
+				PostQuitMessage(0);
+			}
 			break;
-		case WM_DESTROY:
+		case WM_CLOSE:
 			PostQuitMessage(0);
-			return(0);
-            break;
-        case WM_KEYDOWN:
-        {
-            // TODO
-        }
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
 	}
-	return DefWindowProc(hWnd, message, wParam, lParam);
+	return 0;
 }
 
 YasEngineGL::YasEngineGL(HINSTANCE hInstance)
 {
+    config.width = 1024;
+	config.height = 720;
+	config.posX = CW_USEDEFAULT;
+	config.posY = 0;
+	config.windowed = true;
+	style = WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
         // Allocates a new console for the calling process.
 	AllocConsole();
     // Attaches the calling process to the console of the specified process.
@@ -89,14 +46,38 @@ YasEngineGL::YasEngineGL(HINSTANCE hInstance)
     applicationHandle = hInstance;
 }
 
-void YasEngineGL::prepareWindow()
+///////////////////////////////////////////////////////////
+// Adjust window's size for non-client area elements
+// like border and title bar
+
+void YasEngineGL::adjustSize() {
+
+	RECT rect = { 0, 0, config.width, config.height };
+	AdjustWindowRect(&rect, style, false);
+	config.width = rect.right - rect.left;
+	config.height = rect.bottom - rect.top;
+}
+
+///////////////////////////////////////////////////////////
+
+void YasEngineGL::center() {
+
+	RECT primaryDisplaySize;
+	SystemParametersInfo(SPI_GETWORKAREA, 0, &primaryDisplaySize, 0);	// system taskbar and application desktop toolbars not included
+	config.posX = (primaryDisplaySize.right - config.width) / 2;
+	config.posY = (primaryDisplaySize.bottom - config.height) / 2;
+}
+
+ATOM YasEngineGL::registerWindowClass(HINSTANCE hInstance)
 {
-    std::cout << "Preaparing window..." << std::endl;
+    WNDCLASSEX windowClassEx;
+    ZeroMemory(&windowClassEx, sizeof(windowClassEx));
+    std::cout << "Preaparing windowClassEx for window" << std::endl;
     // Size of windowClassEx object
     windowClassEx.cbSize                        = sizeof(WNDCLASSEX);
 
     // Window style. Look and behavior
-    windowClassEx.style                         = CS_VREDRAW | CS_HREDRAW;
+    windowClassEx.style                         = CS_VREDRAW | CS_HREDRAW | CS_OWNDC;
 
     // Pointer to window procedure
     windowClassEx.lpfnWndProc                   = windowProcedure;
@@ -123,31 +104,194 @@ void YasEngineGL::prepareWindow()
     windowClassEx.lpszMenuName                  = 0;
 
     // Name of window
-    windowClassEx.lpszClassName                 = "YASEngineGL window class";
+    windowClassEx.lpszClassName                 = "YASEngineGLwindowClass";
 
     // Handle to icon whitch will be show on windows bar.
     windowClassEx.hIconSm                       = LoadIcon(0, IDI_APPLICATION);
 
     // Function whtch create, set values and register window class in the system.
-    RegisterClassEx(&windowClassEx);
-
-    // Function tho create window with specyfied properties.
-    windowHandle = CreateWindowEx(NULL, "YASEngineGL window class", "YASEngineGL", WS_OVERLAPPEDWINDOW|WS_VISIBLE, windowXposition,
-                                  windowYposition, windowWidth, windowHeight, NULL, NULL, applicationHandle, NULL);
-    
-    // Set window's show state
-	ShowWindow(windowHandle, SW_NORMAL);
-
-    // Brings thread that created this window into the foreground and activates the window.
-	SetForegroundWindow(windowHandle);
-
-    // Set focus to specified window.
-	SetFocus(windowHandle);
+    return RegisterClassEx(&windowClassEx);
 }
 
-void YasEngineGL::run()
+void YasEngineGL::prepareWindow(int nCmdShow)
 {
-    prepareWindow();
+    windowClassName = MAKEINTATOM(registerWindowClass(applicationHandle));
+
+    HWND fakeWindow = CreateWindow(
+                    windowClassName, "Fake Window",
+                    WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+                    0, 0,
+                    1, 1,
+                    NULL, NULL,
+                    applicationHandle, NULL);
+   
+    HDC fakeDC = GetDC(fakeWindow);
+
+    PIXELFORMATDESCRIPTOR fakePFD;
+
+    ZeroMemory(&fakePFD, sizeof(fakePFD));
+    fakePFD.nSize = sizeof(fakePFD);
+    fakePFD.nVersion = 1;
+    fakePFD.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+    fakePFD.iPixelType = PFD_TYPE_RGBA;
+    fakePFD.cColorBits = 32;
+    fakePFD.cAlphaBits = 8;
+    fakePFD.cDepthBits = 24;
+ 
+    int fakePFDID = ChoosePixelFormat(fakeDC, &fakePFD);
+    if(fakePFDID == 0)
+    {
+        std::cout << "Choosing pixel format failed." << std::endl;
+        exit(1);
+    }
+
+    if(SetPixelFormat(fakeDC, fakePFDID, &fakePFD) == false)
+    {
+        std::cout << "Setting pixel format failed." << std::endl;
+        exit(1);
+    }
+
+    HGLRC fakeRC = wglCreateContext(fakeDC);    // Rendering Contex
+ 
+    if (fakeRC == 0) {
+        std::cout << "wglCreateContext() failed." << std::endl;
+        exit(1);
+    }
+ 
+    if (wglMakeCurrent(fakeDC, fakeRC) == false) {
+        std::cout << "wglMakeCurrent() failed." << std::endl;
+        exit(1);
+    }
+
+    PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = nullptr;
+    wglChoosePixelFormatARB = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(wglGetProcAddress("wglChoosePixelFormatARB"));
+    if (wglChoosePixelFormatARB == nullptr) {
+        std::cout << "wglGetProcAddress() failed." << std::endl;
+        exit(1);
+    }
+ 
+    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
+    wglCreateContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
+    if (wglCreateContextAttribsARB == nullptr) {
+        std::cout << "wglGetProcAddress() failed." << std::endl;
+        exit(1);
+    }
+//-----------------------------------------------------------------------------|---------------------------------------|
+
+    // Function tho create window with specyfied properties.
+//windowHandle = CreateWindowEx(NULL, "YASEngineGL window class", "YASEngineGL", WS_OVERLAPPEDWINDOW|WS_VISIBLE, windowXposition,
+                                  //windowYposition, windowWidth, windowHeight, NULL, NULL, applicationHandle, NULL);
+
+	//WND = CreateWindow(
+	//	windowClass, "OpenGL Window",	// class name, window name
+	//	style,							// styles
+	//	config.posX, config.posY,		// posx, posy. If x is set to CW_USEDEFAULT y is ignored
+	//	config.width, config.height,	// width, height
+	//	NULL, NULL,						// parent window, menu
+	//	hInstance, NULL);				// instance, param
+    
+    windowHandle = CreateWindow(windowClassName, "YasEngineGL", style, config.posX, config.posY, config.width, config.height, NULL, NULL, applicationHandle, NULL);
+
+    deviceContext = GetDC(windowHandle);
+
+	const int pixelAttribs[] = {
+		WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+		WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+		WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+		WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+		WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
+		WGL_COLOR_BITS_ARB, 32,
+		WGL_ALPHA_BITS_ARB, 8,
+		WGL_DEPTH_BITS_ARB, 24,
+		WGL_STENCIL_BITS_ARB, 8,
+		WGL_SAMPLE_BUFFERS_ARB, GL_TRUE,
+		WGL_SAMPLES_ARB, 4,
+		0
+	};
+
+	int pixelFormatID; UINT numFormats;
+	const bool status = wglChoosePixelFormatARB(deviceContext, pixelAttribs, NULL, 1, &pixelFormatID, &numFormats);
+
+	if (status == false || numFormats == 0) {
+		std::cout << "wglChoosePixelFormatARB() failed." << std::endl;
+		exit(1);
+	}
+
+	PIXELFORMATDESCRIPTOR pixelFormatDescriptor;
+	DescribePixelFormat(deviceContext, pixelFormatID, sizeof(pixelFormatDescriptor), &pixelFormatDescriptor);
+	SetPixelFormat(deviceContext, pixelFormatID, &pixelFormatDescriptor);
+
+	const int major_min = 4, minor_min = 0;
+	const int contextAttribs[] = {
+		WGL_CONTEXT_MAJOR_VERSION_ARB, major_min,
+		WGL_CONTEXT_MINOR_VERSION_ARB, minor_min,
+		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+//		WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
+		0
+	};
+
+	renderingContext = wglCreateContextAttribsARB(deviceContext, 0, contextAttribs);
+	if (renderingContext == NULL) {
+		std::cout << "wglCreateContextAttribsARB() failed." << std::endl;
+		exit(1);
+	}
+
+	// delete temporary context and window
+
+	wglMakeCurrent(NULL, NULL);
+	wglDeleteContext(fakeRC);
+	ReleaseDC(fakeWindow, fakeDC);
+	DestroyWindow(fakeWindow);
+	if (!wglMakeCurrent(deviceContext, renderingContext)) {
+		std::cout << "wglMakeCurrent() failed." << std::endl;
+		exit(1);
+	}
+
+	// init opengl loader here (extra safe version)
+
+	SetWindowText(windowHandle, reinterpret_cast<LPCSTR>(glGetString(GL_VERSION)));
+	ShowWindow(windowHandle, nCmdShow);
+
+ //   // Set window's show state
+	//ShowWindow(windowHandle, SW_NORMAL);
+
+ //   // Brings thread that created this window into the foreground and activates the window.
+	//SetForegroundWindow(windowHandle);
+
+ //   // Set focus to specified window.
+	//SetFocus(windowHandle);
+}
+
+void YasEngineGL::render()
+{
+	glClearColor(0.129f, 0.586f, 0.949f, 1.0f);	// rgb(33,150,243)
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void YasEngineGL::swapBuffers()
+{
+
+	SwapBuffers(deviceContext);
+}
+
+void YasEngineGL::destroy() {
+
+	wglMakeCurrent(NULL, NULL);
+	if (renderingContext) {
+		wglDeleteContext(renderingContext);
+	}
+	if (deviceContext) {
+		ReleaseDC(windowHandle, deviceContext);
+	}
+	if (windowHandle) {
+		DestroyWindow(windowHandle);
+	}
+}
+
+void YasEngineGL::run(int nCmdShow)
+{
+
+    prepareWindow(nCmdShow);
 
     std::cout << "Windows and OpenGL context Prepared... starting rendering" << std::endl;
 
@@ -177,7 +321,9 @@ void YasEngineGL::run()
             newTime = timePicker.getSeconds();
             deltaTime = newTime - time;
             time = newTime;
-            // TODO drawFrame(deltaTime);            
+            // TODO drawFrame(deltaTime);   
+            render();
+		    swapBuffers();
             frames++;
             fpsTime = fpsTime + deltaTime;
             if(fpsTime >= 1.0F)
@@ -188,6 +334,7 @@ void YasEngineGL::run()
             }
         }
     }
+
 }
 
 //                                                                            80                                     120
