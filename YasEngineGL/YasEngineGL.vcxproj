@@ -81,6 +81,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\development\libraries\tinyobjloader;C:\development\libraries\OpenGLadditionalLibraries\include\SOIL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -107,6 +108,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\development\libraries\tinyobjloader;C:\development\libraries\OpenGLadditionalLibraries\include\SOIL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,8 +141,10 @@
   <ItemGroup>
     <ClInclude Include="main.hpp" />
     <ClInclude Include="TimePicker.hpp" />
+    <ClInclude Include="Vector.hpp" />
     <ClInclude Include="YasEngineGL.hpp" />
     <ClInclude Include="YasLog.hpp" />
+    <ClInclude Include="YasMathLib.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,7 +6,7 @@
 const char* YasEngineGL::engineName = "YasEngine";
 const char* YasEngineGL::applicationName = "YasEngine Demo Application";
 
-LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK YasEngineGL::windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 		switch (message) {
 		case WM_KEYDOWN:
@@ -25,47 +25,90 @@ LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM 
 
 YasEngineGL::YasEngineGL(HINSTANCE hInstance)
 {
-    config.width = 1024;
-	config.height = 720;
-	config.posX = CW_USEDEFAULT;
-	config.posY = 0;
-	config.windowed = true;
+    windowWidth = 640;
+	windowHeight = 360;
+	
+    windowXposition = 0;
+	windowYposition = 0;
+
+	windowed = true;
 	style = WS_CAPTION | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
-        // Allocates a new console for the calling process.
+
+    // Allocates a new console for the calling process.
 	AllocConsole();
+
     // Attaches the calling process to the console of the specified process.
 	AttachConsole(GetCurrentProcessId());
+
     // Stream object
 	FILE* file;
+
     // fropen_s open existing file with another name
 	freopen_s(&file, "CON", "w", stdout);
 	freopen_s(&file, "CON", "w", stderr);
+
 	SetConsoleTitle("YasEngine logging");
     std::cout.clear();
 
     applicationHandle = hInstance;
 }
 
-///////////////////////////////////////////////////////////
-// Adjust window's size for non-client area elements
-// like border and title bar
+// Code from https://www.khronos.org/opengl/wiki/Load_OpenGL_Functions
+void * YasEngineGL::GetAnyGLFuncAddress(const char * name)
+{
+  void *p = (void *)wglGetProcAddress(name);
+  if(p == 0 ||
+    (p == (void*)0x1) || (p == (void*)0x2) || (p == (void*)0x3) ||
+    (p == (void*)-1) )
+  {
+    HMODULE module = LoadLibraryA("opengl32.dll");
+    p = (void *)GetProcAddress(module, name);
+  }
 
-void YasEngineGL::adjustSize() {
-
-	RECT rect = { 0, 0, config.width, config.height };
-	AdjustWindowRect(&rect, style, false);
-	config.width = rect.right - rect.left;
-	config.height = rect.bottom - rect.top;
+  return p;
 }
 
-///////////////////////////////////////////////////////////
+GLuint YasEngineGL::createShaderForPoint()
+{
+        PFNGLCREATESHADERPROC glCreateShader = (PFNGLCREATESHADERPROC)wglGetProcAddress("glCreateShader");
 
-void YasEngineGL::center() {
+        PFNGLCREATEPROGRAMPROC glCreateProgram = (PFNGLCREATEPROGRAMPROC)wglGetProcAddress("glCreateProgram");
 
-	RECT primaryDisplaySize;
-	SystemParametersInfo(SPI_GETWORKAREA, 0, &primaryDisplaySize, 0);	// system taskbar and application desktop toolbars not included
-	config.posX = (primaryDisplaySize.right - config.width) / 2;
-	config.posY = (primaryDisplaySize.bottom - config.height) / 2;
+        PFNGLSHADERSOURCEPROC glShaderSource = (PFNGLSHADERSOURCEPROC)wglGetProcAddress("glShaderSource");
+
+        PFNGLCOMPILESHADERPROC glCompileShader = (PFNGLCOMPILESHADERPROC)wglGetProcAddress("glCompileShader");
+
+        PFNGLATTACHSHADERPROC glAttachShader = (PFNGLATTACHSHADERPROC)wglGetProcAddress("glAttachShader");
+
+        PFNGLLINKPROGRAMPROC glLinkProgram = (PFNGLLINKPROGRAMPROC)wglGetProcAddress("glLinkProgram");
+
+    const char *vshaderSource =
+		"#version 430    \n"
+		"void main(void) \n"
+		"{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
+
+	const char *fshaderSource =
+		"#version 430    \n"
+		"out vec4 color; \n"
+		"void main(void) \n"
+		"{ color = vec4(0.0, 1.0, 0.0, 1.0); }";
+
+	GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
+	GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
+	
+
+	glShaderSource(vShader, 1, &vshaderSource, NULL);
+	glShaderSource(fShader, 1, &fshaderSource, NULL);
+	glCompileShader(vShader);
+	glCompileShader(fShader);
+
+    GLuint vfprogram = glCreateProgram();
+		
+	glAttachShader(vfprogram, vShader);
+	glAttachShader(vfprogram, fShader);
+	glLinkProgram(vfprogram);
+
+	return vfprogram;
 }
 
 ATOM YasEngineGL::registerWindowClass(HINSTANCE hInstance)
@@ -125,40 +168,40 @@ void YasEngineGL::prepareWindow(int nCmdShow)
                     NULL, NULL,
                     applicationHandle, NULL);
    
-    HDC fakeDC = GetDC(fakeWindow);
+    HDC fakeDeviceContext = GetDC(fakeWindow);
 
-    PIXELFORMATDESCRIPTOR fakePFD;
+    PIXELFORMATDESCRIPTOR fakePixelFormatDescriptor;
 
-    ZeroMemory(&fakePFD, sizeof(fakePFD));
-    fakePFD.nSize = sizeof(fakePFD);
-    fakePFD.nVersion = 1;
-    fakePFD.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-    fakePFD.iPixelType = PFD_TYPE_RGBA;
-    fakePFD.cColorBits = 32;
-    fakePFD.cAlphaBits = 8;
-    fakePFD.cDepthBits = 24;
+    ZeroMemory(&fakePixelFormatDescriptor, sizeof(fakePixelFormatDescriptor));
+    fakePixelFormatDescriptor.nSize = sizeof(fakePixelFormatDescriptor);
+    fakePixelFormatDescriptor.nVersion = 1;
+    fakePixelFormatDescriptor.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+    fakePixelFormatDescriptor.iPixelType = PFD_TYPE_RGBA;
+    fakePixelFormatDescriptor.cColorBits = 32;
+    fakePixelFormatDescriptor.cAlphaBits = 8;
+    fakePixelFormatDescriptor.cDepthBits = 24;
  
-    int fakePFDID = ChoosePixelFormat(fakeDC, &fakePFD);
-    if(fakePFDID == 0)
+    int fakePixelFormatId = ChoosePixelFormat(fakeDeviceContext, &fakePixelFormatDescriptor);
+    if(fakePixelFormatId == 0)
     {
         std::cout << "Choosing pixel format failed." << std::endl;
         exit(1);
     }
 
-    if(SetPixelFormat(fakeDC, fakePFDID, &fakePFD) == false)
+    if(SetPixelFormat(fakeDeviceContext, fakePixelFormatId, &fakePixelFormatDescriptor) == false)
     {
         std::cout << "Setting pixel format failed." << std::endl;
         exit(1);
     }
 
-    HGLRC fakeRC = wglCreateContext(fakeDC);    // Rendering Contex
+    HGLRC fakeRenderingContext = wglCreateContext(fakeDeviceContext);
  
-    if (fakeRC == 0) {
+    if (fakeRenderingContext == 0) {
         std::cout << "wglCreateContext() failed." << std::endl;
         exit(1);
     }
  
-    if (wglMakeCurrent(fakeDC, fakeRC) == false) {
+    if (wglMakeCurrent(fakeDeviceContext, fakeRenderingContext) == false) {
         std::cout << "wglMakeCurrent() failed." << std::endl;
         exit(1);
     }
@@ -176,21 +219,9 @@ void YasEngineGL::prepareWindow(int nCmdShow)
         std::cout << "wglGetProcAddress() failed." << std::endl;
         exit(1);
     }
-//-----------------------------------------------------------------------------|---------------------------------------|
 
-    // Function tho create window with specyfied properties.
-//windowHandle = CreateWindowEx(NULL, "YASEngineGL window class", "YASEngineGL", WS_OVERLAPPEDWINDOW|WS_VISIBLE, windowXposition,
-                                  //windowYposition, windowWidth, windowHeight, NULL, NULL, applicationHandle, NULL);
-
-	//WND = CreateWindow(
-	//	windowClass, "OpenGL Window",	// class name, window name
-	//	style,							// styles
-	//	config.posX, config.posY,		// posx, posy. If x is set to CW_USEDEFAULT y is ignored
-	//	config.width, config.height,	// width, height
-	//	NULL, NULL,						// parent window, menu
-	//	hInstance, NULL);				// instance, param
-    
-    windowHandle = CreateWindow(windowClassName, "YasEngineGL", style, config.posX, config.posY, config.width, config.height, NULL, NULL, applicationHandle, NULL);
+    windowHandle = CreateWindow(windowClassName, "YasEngineGL", style, windowXposition, windowYposition,
+                                windowWidth, windowHeight, NULL, NULL, applicationHandle, NULL);
 
     deviceContext = GetDC(windowHandle);
 
@@ -221,12 +252,11 @@ void YasEngineGL::prepareWindow(int nCmdShow)
 	DescribePixelFormat(deviceContext, pixelFormatID, sizeof(pixelFormatDescriptor), &pixelFormatDescriptor);
 	SetPixelFormat(deviceContext, pixelFormatID, &pixelFormatDescriptor);
 
-	const int major_min = 4, minor_min = 0;
+	const int major_min = 4, minor_min = 3; // minor_min changed from 0 to 3
 	const int contextAttribs[] = {
 		WGL_CONTEXT_MAJOR_VERSION_ARB, major_min,
 		WGL_CONTEXT_MINOR_VERSION_ARB, minor_min,
 		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-//		WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
 		0
 	};
 
@@ -236,36 +266,50 @@ void YasEngineGL::prepareWindow(int nCmdShow)
 		exit(1);
 	}
 
-	// delete temporary context and window
+	// Delete temporary context and window
 
 	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext(fakeRC);
-	ReleaseDC(fakeWindow, fakeDC);
+	wglDeleteContext(fakeRenderingContext);
+	ReleaseDC(fakeWindow, fakeDeviceContext);
 	DestroyWindow(fakeWindow);
 	if (!wglMakeCurrent(deviceContext, renderingContext)) {
 		std::cout << "wglMakeCurrent() failed." << std::endl;
 		exit(1);
 	}
 
-	// init opengl loader here (extra safe version)
-
 	SetWindowText(windowHandle, reinterpret_cast<LPCSTR>(glGetString(GL_VERSION)));
 	ShowWindow(windowHandle, nCmdShow);
 
- //   // Set window's show state
-	//ShowWindow(windowHandle, SW_NORMAL);
+    // Brings thread that created this window into the foreground and activates the window.
+	SetForegroundWindow(windowHandle);
 
- //   // Brings thread that created this window into the foreground and activates the window.
-	//SetForegroundWindow(windowHandle);
+    // Set focus to specified window.
+	SetFocus(windowHandle);
 
- //   // Set focus to specified window.
-	//SetFocus(windowHandle);
+    
+    shaderPoint = createShaderForPoint();
+
+    //typedef void (APIENTRYP PFNGLGENVERTEXARRAYSPROC) (GLsizei n, GLuint *arrays);
+    PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)wglGetProcAddress("glGenVertexArrays");
+    
+    //typedef void (APIENTRYP PFNGLBINDVERTEXARRAYPROC) (GLuint array); 
+    PFNGLBINDVERTEXARRAYPROC glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)wglGetProcAddress("glBindVertexArray");
+
+    glGenVertexArrays(1, vao);
+	glBindVertexArray(vao[0]);
 }
 
 void YasEngineGL::render()
 {
-	glClearColor(0.129f, 0.586f, 0.949f, 1.0f);	// rgb(33,150,243)
+	glClearColor(1.0F, 0.0F, 0.0F, 1.0F);
 	glClear(GL_COLOR_BUFFER_BIT);
+    
+    //typedef void (APIENTRYP PFNGLUSEPROGRAMPROC) (GLuint program);
+    PFNGLUSEPROGRAMPROC glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
+
+    glUseProgram(renderingProgram);
+	glPointSize(10.0f);
+	glDrawArrays(GL_POINTS, 0, 1);
 }
 
 void YasEngineGL::swapBuffers()
@@ -334,7 +378,6 @@ void YasEngineGL::run(int nCmdShow)
             }
         }
     }
-
 }
 
 //                                                                            80                                     120

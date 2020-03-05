@@ -11,48 +11,55 @@
 //-----------------------------------------------------------------------------|---------------------------------------|
 //                                                                            80                                     120
 
-LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
 class YasEngineGL
 {
     public:
         YasEngineGL(HINSTANCE hInstance);
         ATOM registerWindowClass(HINSTANCE hInstance);
-        
+        static LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
         DWORD style;
+        GLuint shaderPoint;
 
-        struct Config {
-		    int width;
-		    int	height;
-		    int posX;
-		    int posY;
-		    bool windowed;
-	    } config;
+        //#define numVAOs 1
 
-        void adjustSize();
-	    void center();
+        GLuint renderingProgram;
+        GLuint vao[1];
+
         void render();
         void swapBuffers();
         void prepareWindow(int nCmdShow);
         void run(int nCmdShow);
         void destroy();
-    
+        GLuint createShaderForPoint();
+        void *GetAnyGLFuncAddress(const char *name);
+
+//typedef GLuint (APIENTRYP PFNGLCREATESHADERPROC) (GLenum type);
+//typedef void (APIENTRYP PFNGLCOMPILESHADERPROC) (GLuint shader);
+//typedef GLuint (APIENTRYP PFNGLCREATEPROGRAMPROC) (void);
+//typedef GLuint (APIENTRYP PFNGLCREATESHADERPROC) (GLenum type);
+//typedef void (APIENTRYP PFNGLDELETEPROGRAMPROC) (GLuint program);
+//typedef void (APIENTRYP PFNGLDELETESHADERPROC) (GLuint shader);
+//typedef void (APIENTRYP PFNGLDETACHSHADERPROC) (GLuint program, GLuint shader);
+
+
+
+
     private:
         static const char* engineName;
         static const char* applicationName;
 
-        // Windows API
-        int windowXposition                 = 10;//TODO take system width
-        int windowYposition                 = 10;//TODO teke system height
-        int windowWidth                     = 640;
-        int windowHeight                    = 360;
+        int windowXposition;
+        int windowYposition;
+        int windowWidth;
+        int windowHeight;
 
-        //WNDCLASSEX windowClassEx;
+		bool windowed;
+
         HWND windowHandle;
         HINSTANCE applicationHandle;
-        LPTSTR windowClassName; // Name
+        LPTSTR windowClassName;
         HDC	deviceContext;
-        HGLRC renderingContext;			// Rendering Context
+        HGLRC renderingContext;
 };
 
 #endif
