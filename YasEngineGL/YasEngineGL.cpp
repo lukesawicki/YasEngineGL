@@ -3,8 +3,8 @@
 //-----------------------------------------------------------------------------|---------------------------------------|
 //                                                                            80                                     120
 
-const char* YasEngineGL::engineName = "YasEngine";
-const char* YasEngineGL::applicationName = "YasEngine Demo Application";
+std::string YasEngineGL::engineName = "YasEngine";
+std::string YasEngineGL::applicationName = "YasEngine Demo Application";
 
 LRESULT CALLBACK YasEngineGL::windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -25,8 +25,8 @@ LRESULT CALLBACK YasEngineGL::windowProcedure(HWND hWnd, UINT message, WPARAM wP
 
 YasEngineGL::YasEngineGL(HINSTANCE hInstance)
 {
-    windowWidth = 640;
-	windowHeight = 360;
+    windowWidth = 600; // 640;
+	windowHeight = 600; // 360;
 	
     windowXposition = 0;
 	windowYposition = 0;
@@ -47,28 +47,17 @@ YasEngineGL::YasEngineGL(HINSTANCE hInstance)
 	freopen_s(&file, "CON", "w", stdout);
 	freopen_s(&file, "CON", "w", stderr);
 
-	SetConsoleTitle("YasEngine logging");
+    //std::string YasEngineGL::engineName = "YasEngine";
+    
+    std::string consoleTitle = engineName + " logging window";
+
+	SetConsoleTitle(consoleTitle.c_str());
     std::cout.clear();
 
     applicationHandle = hInstance;
 }
 
-// Code from https://www.khronos.org/opengl/wiki/Load_OpenGL_Functions
-void * YasEngineGL::GetAnyGLFuncAddress(const char * name)
-{
-  void *p = (void *)wglGetProcAddress(name);
-  if(p == 0 ||
-    (p == (void*)0x1) || (p == (void*)0x2) || (p == (void*)0x3) ||
-    (p == (void*)-1) )
-  {
-    HMODULE module = LoadLibraryA("opengl32.dll");
-    p = (void *)GetProcAddress(module, name);
-  }
-
-  return p;
-}
-
-GLuint YasEngineGL::createShaderForPoint()
+GLuint YasEngineGL::createShaderProgram()
 {
         PFNGLCREATESHADERPROC glCreateShader = (PFNGLCREATESHADERPROC)wglGetProcAddress("glCreateShader");
 
@@ -82,33 +71,51 @@ GLuint YasEngineGL::createShaderForPoint()
 
         PFNGLLINKPROGRAMPROC glLinkProgram = (PFNGLLINKPROGRAMPROC)wglGetProcAddress("glLinkProgram");
 
-    const char *vshaderSource =
+    const char *vertexShaderSource =
 		"#version 430    \n"
 		"void main(void) \n"
 		"{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
 
-	const char *fshaderSource =
+	const char *fragmentShaderSource =
 		"#version 430    \n"
 		"out vec4 color; \n"
 		"void main(void) \n"
-		"{ color = vec4(0.0, 1.0, 0.0, 1.0); }";
+		"{\n" 
+            "if (gl_FragCoord.x < 300)\n"
+            "{\n"
+            "color = vec4(1.0, 0.0, 0.0, 1.0); \n"
+            "}\n"
+            "else\n"
+            "{\n"
+                "color = vec4(0.0, 0.0, 1.0, 1.0); \n"
+            "}\n"
+        "}\n";
 
-	GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
-	GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
+///////////////////////////
+//  	"#version 430    \n"
+//    "out vec4 color; \n"
+//    "void main(void) \n"
+//    "{" 
+//        "color = vec4(0.0, 0.0, 1.0, 1.0); "
+//    "}";
+///////////////////////////
+
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	
 
-	glShaderSource(vShader, 1, &vshaderSource, NULL);
-	glShaderSource(fShader, 1, &fshaderSource, NULL);
-	glCompileShader(vShader);
-	glCompileShader(fShader);
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(vertexShader);
+	glCompileShader(fragmentShader);
 
-    GLuint vfprogram = glCreateProgram();
+    GLuint vertexAndFragmentShaderProgram = glCreateProgram();
 		
-	glAttachShader(vfprogram, vShader);
-	glAttachShader(vfprogram, fShader);
-	glLinkProgram(vfprogram);
+	glAttachShader(vertexAndFragmentShaderProgram, vertexShader);
+	glAttachShader(vertexAndFragmentShaderProgram, fragmentShader);
+	glLinkProgram(vertexAndFragmentShaderProgram);
 
-	return vfprogram;
+	return vertexAndFragmentShaderProgram;
 }
 
 ATOM YasEngineGL::registerWindowClass(HINSTANCE hInstance)
@@ -147,7 +154,7 @@ ATOM YasEngineGL::registerWindowClass(HINSTANCE hInstance)
     windowClassEx.lpszMenuName                  = 0;
 
     // Name of window
-    windowClassEx.lpszClassName                 = "YASEngineGLwindowClass";
+    windowClassEx.lpszClassName                 = applicationName.c_str();
 
     // Handle to icon whitch will be show on windows bar.
     windowClassEx.hIconSm                       = LoadIcon(0, IDI_APPLICATION);
@@ -159,6 +166,8 @@ ATOM YasEngineGL::registerWindowClass(HINSTANCE hInstance)
 void YasEngineGL::prepareWindow(int nCmdShow)
 {
     windowClassName = MAKEINTATOM(registerWindowClass(applicationHandle));
+
+    // handle if window didn't created
 
     HWND fakeWindow = CreateWindow(
                     windowClassName, "Fake Window",
@@ -220,7 +229,7 @@ void YasEngineGL::prepareWindow(int nCmdShow)
         exit(1);
     }
 
-    windowHandle = CreateWindow(windowClassName, "YasEngineGL", style, windowXposition, windowYposition,
+    windowHandle = CreateWindow(windowClassName, applicationName.c_str(), style, windowXposition, windowYposition,
                                 windowWidth, windowHeight, NULL, NULL, applicationHandle, NULL);
 
     deviceContext = GetDC(windowHandle);
@@ -240,10 +249,11 @@ void YasEngineGL::prepareWindow(int nCmdShow)
 		0
 	};
 
-	int pixelFormatID; UINT numFormats;
-	const bool status = wglChoosePixelFormatARB(deviceContext, pixelAttribs, NULL, 1, &pixelFormatID, &numFormats);
+	int pixelFormatID;
+    UINT formatsNumber;
+	const bool status = wglChoosePixelFormatARB(deviceContext, pixelAttribs, NULL, 1, &pixelFormatID, &formatsNumber);
 
-	if (status == false || numFormats == 0) {
+	if (status == false || formatsNumber == 0) {
 		std::cout << "wglChoosePixelFormatARB() failed." << std::endl;
 		exit(1);
 	}
@@ -257,6 +267,7 @@ void YasEngineGL::prepareWindow(int nCmdShow)
 		WGL_CONTEXT_MAJOR_VERSION_ARB, major_min,
 		WGL_CONTEXT_MINOR_VERSION_ARB, minor_min,
 		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+    	//WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
 		0
 	};
 
@@ -286,8 +297,59 @@ void YasEngineGL::prepareWindow(int nCmdShow)
     // Set focus to specified window.
 	SetFocus(windowHandle);
 
-    
-    shaderPoint = createShaderForPoint();
+}
+
+void YasEngineGL::printShaderLog(GLuint shader)
+{
+    //EXAMPLE | PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)wglGetProcAddress("glGenVertexArrays"); |
+    int len = 0;
+	int chWrittn = 0;
+	char *log;
+    //typedef void (APIENTRYP PFNGLGETSHADERIVPROC) (GLuint shader, GLenum pname, GLint *params);
+    PFNGLGETSHADERIVPROC glGetShaderiv = (PFNGLGETSHADERIVPROC)wglGetProcAddress("glGetShaderiv");
+	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
+	if (len > 0) {
+		log = (char *)malloc(len);
+        PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)wglGetProcAddress("glGetShaderInfoLog");
+        //typedef void (APIENTRYP PFNGLGETSHADERINFOLOGPROC) (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+		glGetShaderInfoLog(shader, len, &chWrittn, log);
+		std::cout << "Shader Info Log: " << log << std::endl;
+		free(log);
+	}
+}
+
+void YasEngineGL::printProgramLog(int prog)
+{
+    int len = 0;
+	int chWrittn = 0;
+	char *log;
+    //typedef void (APIENTRYP PFNGLGETPROGRAMIVPROC) (GLuint program, GLenum pname, GLint *params);
+    PFNGLGETPROGRAMIVPROC glGetProgramiv = (PFNGLGETPROGRAMIVPROC)wglGetProcAddress("glGetProgramiv");
+	glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &len);
+	if (len > 0) {
+		log = (char *)malloc(len);
+        //typedef void (APIENTRYP PFNGLGETPROGRAMINFOLOGPROC) (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+        PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)wglGetProcAddress("glGetProgramInfoLog");
+		glGetProgramInfoLog(prog, len, &chWrittn, log);
+		std::cout << "Program Info Log: " << log << std::endl;
+		free(log);
+	}
+}
+
+bool YasEngineGL::checkOpenGLError()
+{
+    bool foundError = false;
+	int glErr = glGetError();
+	while (glErr != GL_NO_ERROR) {
+		std::cout << "glError: " << glErr << std::endl;
+		foundError = true;
+		glErr = glGetError();
+	}
+	return foundError;
+}
+
+void YasEngineGL::initShaders() {
+    shaderProgram = createShaderProgram();
 
     //typedef void (APIENTRYP PFNGLGENVERTEXARRAYSPROC) (GLsizei n, GLuint *arrays);
     PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)wglGetProcAddress("glGenVertexArrays");
@@ -295,20 +357,22 @@ void YasEngineGL::prepareWindow(int nCmdShow)
     //typedef void (APIENTRYP PFNGLBINDVERTEXARRAYPROC) (GLuint array); 
     PFNGLBINDVERTEXARRAYPROC glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)wglGetProcAddress("glBindVertexArray");
 
-    glGenVertexArrays(1, vao);
-	glBindVertexArray(vao[0]);
+    glGenVertexArrays(1, vertexArrayObjectIds);
+	glBindVertexArray(vertexArrayObjectIds[0]);
+}
+
+void YasEngineGL::clear()
+{    
+    glClearColor(1.0F, 0.0F, 0.0F, 1.0F);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void YasEngineGL::render()
 {
-	glClearColor(1.0F, 0.0F, 0.0F, 1.0F);
-	glClear(GL_COLOR_BUFFER_BIT);
-    
-    //typedef void (APIENTRYP PFNGLUSEPROGRAMPROC) (GLuint program);
     PFNGLUSEPROGRAMPROC glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
 
-    glUseProgram(renderingProgram);
-	glPointSize(10.0f);
+    glUseProgram(shaderProgram);
+	glPointSize(80.0f);
 	glDrawArrays(GL_POINTS, 0, 1);
 }
 
@@ -336,6 +400,7 @@ void YasEngineGL::run(int nCmdShow)
 {
 
     prepareWindow(nCmdShow);
+    initShaders();
 
     std::cout << "Windows and OpenGL context Prepared... starting rendering" << std::endl;
 
@@ -365,7 +430,7 @@ void YasEngineGL::run(int nCmdShow)
             newTime = timePicker.getSeconds();
             deltaTime = newTime - time;
             time = newTime;
-            // TODO drawFrame(deltaTime);   
+            //clear();
             render();
 		    swapBuffers();
             frames++;
@@ -378,6 +443,7 @@ void YasEngineGL::run(int nCmdShow)
             }
         }
     }
+    destroy();
 }
 
 //                                                                            80                                     120
