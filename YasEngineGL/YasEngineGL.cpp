@@ -23,6 +23,28 @@ LRESULT CALLBACK YasEngineGL::windowProcedure(HWND hWnd, UINT message, WPARAM wP
 	return 0;
 }
 
+void YasEngineGL::extractFunctionsPointers()
+{
+    // For working with shaders
+    glCreateShader = reinterpret_cast<PFNGLCREATESHADERPROC>(wglGetProcAddress("glCreateShader"));
+    glCreateProgram = reinterpret_cast<PFNGLCREATEPROGRAMPROC>(wglGetProcAddress("glCreateProgram"));
+    glShaderSource = reinterpret_cast<PFNGLSHADERSOURCEPROC>(wglGetProcAddress("glShaderSource"));
+    glCompileShader = reinterpret_cast<PFNGLCOMPILESHADERPROC>(wglGetProcAddress("glCompileShader"));
+    glAttachShader = reinterpret_cast<PFNGLATTACHSHADERPROC>(wglGetProcAddress("glAttachShader"));
+    glLinkProgram = reinterpret_cast<PFNGLLINKPROGRAMPROC>(wglGetProcAddress("glLinkProgram"));
+    glGenVertexArrays = reinterpret_cast<PFNGLGENVERTEXARRAYSPROC>(wglGetProcAddress("glGenVertexArrays"));
+    glBindVertexArray = reinterpret_cast<PFNGLBINDVERTEXARRAYPROC>(wglGetProcAddress("glBindVertexArray"));
+    
+    // For error checking and logging
+    glGetShaderiv = reinterpret_cast<PFNGLGETSHADERIVPROC>(wglGetProcAddress("glGetShaderiv"));
+    glGetShaderInfoLog = reinterpret_cast<PFNGLGETSHADERINFOLOGPROC>(wglGetProcAddress("glGetShaderInfoLog"));
+    glGetProgramiv = reinterpret_cast<PFNGLGETPROGRAMIVPROC>(wglGetProcAddress("glGetProgramiv"));
+    glGetProgramInfoLog = reinterpret_cast<PFNGLGETPROGRAMINFOLOGPROC>(wglGetProcAddress("glGetProgramInfoLog"));
+
+    // For rendering
+    glUseProgram = reinterpret_cast<PFNGLUSEPROGRAMPROC>(wglGetProcAddress("glUseProgram"));
+}
+
 YasEngineGL::YasEngineGL(HINSTANCE hInstance)
 {
     windowWidth = 600; // 640;
@@ -59,18 +81,6 @@ YasEngineGL::YasEngineGL(HINSTANCE hInstance)
 
 GLuint YasEngineGL::createShaderProgram()
 {
-        PFNGLCREATESHADERPROC glCreateShader = (PFNGLCREATESHADERPROC)wglGetProcAddress("glCreateShader");
-
-        PFNGLCREATEPROGRAMPROC glCreateProgram = (PFNGLCREATEPROGRAMPROC)wglGetProcAddress("glCreateProgram");
-
-        PFNGLSHADERSOURCEPROC glShaderSource = (PFNGLSHADERSOURCEPROC)wglGetProcAddress("glShaderSource");
-
-        PFNGLCOMPILESHADERPROC glCompileShader = (PFNGLCOMPILESHADERPROC)wglGetProcAddress("glCompileShader");
-
-        PFNGLATTACHSHADERPROC glAttachShader = (PFNGLATTACHSHADERPROC)wglGetProcAddress("glAttachShader");
-
-        PFNGLLINKPROGRAMPROC glLinkProgram = (PFNGLLINKPROGRAMPROC)wglGetProcAddress("glLinkProgram");
-
     const char *vertexShaderSource =
 		"#version 430    \n"
 		"void main(void) \n"
@@ -90,15 +100,6 @@ GLuint YasEngineGL::createShaderProgram()
                 "color = vec4(0.0, 0.0, 1.0, 1.0); \n"
             "}\n"
         "}\n";
-
-///////////////////////////
-//  	"#version 430    \n"
-//    "out vec4 color; \n"
-//    "void main(void) \n"
-//    "{" 
-//        "color = vec4(0.0, 0.0, 1.0, 1.0); "
-//    "}";
-///////////////////////////
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -267,7 +268,6 @@ void YasEngineGL::prepareWindow(int nCmdShow)
 		WGL_CONTEXT_MAJOR_VERSION_ARB, major_min,
 		WGL_CONTEXT_MINOR_VERSION_ARB, minor_min,
 		WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-    	//WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_DEBUG_BIT_ARB,
 		0
 	};
 
@@ -297,21 +297,17 @@ void YasEngineGL::prepareWindow(int nCmdShow)
     // Set focus to specified window.
 	SetFocus(windowHandle);
 
+    extractFunctionsPointers();
 }
 
 void YasEngineGL::printShaderLog(GLuint shader)
 {
-    //EXAMPLE | PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)wglGetProcAddress("glGenVertexArrays"); |
     int len = 0;
 	int chWrittn = 0;
 	char *log;
-    //typedef void (APIENTRYP PFNGLGETSHADERIVPROC) (GLuint shader, GLenum pname, GLint *params);
-    PFNGLGETSHADERIVPROC glGetShaderiv = (PFNGLGETSHADERIVPROC)wglGetProcAddress("glGetShaderiv");
 	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
 	if (len > 0) {
 		log = (char *)malloc(len);
-        PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC)wglGetProcAddress("glGetShaderInfoLog");
-        //typedef void (APIENTRYP PFNGLGETSHADERINFOLOGPROC) (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
 		glGetShaderInfoLog(shader, len, &chWrittn, log);
 		std::cout << "Shader Info Log: " << log << std::endl;
 		free(log);
@@ -323,13 +319,9 @@ void YasEngineGL::printProgramLog(int prog)
     int len = 0;
 	int chWrittn = 0;
 	char *log;
-    //typedef void (APIENTRYP PFNGLGETPROGRAMIVPROC) (GLuint program, GLenum pname, GLint *params);
-    PFNGLGETPROGRAMIVPROC glGetProgramiv = (PFNGLGETPROGRAMIVPROC)wglGetProcAddress("glGetProgramiv");
 	glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &len);
 	if (len > 0) {
 		log = (char *)malloc(len);
-        //typedef void (APIENTRYP PFNGLGETPROGRAMINFOLOGPROC) (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
-        PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)wglGetProcAddress("glGetProgramInfoLog");
 		glGetProgramInfoLog(prog, len, &chWrittn, log);
 		std::cout << "Program Info Log: " << log << std::endl;
 		free(log);
@@ -350,13 +342,6 @@ bool YasEngineGL::checkOpenGLError()
 
 void YasEngineGL::initShaders() {
     shaderProgram = createShaderProgram();
-
-    //typedef void (APIENTRYP PFNGLGENVERTEXARRAYSPROC) (GLsizei n, GLuint *arrays);
-    PFNGLGENVERTEXARRAYSPROC glGenVertexArrays = (PFNGLGENVERTEXARRAYSPROC)wglGetProcAddress("glGenVertexArrays");
-    
-    //typedef void (APIENTRYP PFNGLBINDVERTEXARRAYPROC) (GLuint array); 
-    PFNGLBINDVERTEXARRAYPROC glBindVertexArray = (PFNGLBINDVERTEXARRAYPROC)wglGetProcAddress("glBindVertexArray");
-
     glGenVertexArrays(1, vertexArrayObjectIds);
 	glBindVertexArray(vertexArrayObjectIds[0]);
 }
@@ -369,8 +354,6 @@ void YasEngineGL::clear()
 
 void YasEngineGL::render()
 {
-    PFNGLUSEPROGRAMPROC glUseProgram = (PFNGLUSEPROGRAMPROC)wglGetProcAddress("glUseProgram");
-
     glUseProgram(shaderProgram);
 	glPointSize(80.0f);
 	glDrawArrays(GL_POINTS, 0, 1);
@@ -378,7 +361,6 @@ void YasEngineGL::render()
 
 void YasEngineGL::swapBuffers()
 {
-
 	SwapBuffers(deviceContext);
 }
 
@@ -398,7 +380,6 @@ void YasEngineGL::destroy() {
 
 void YasEngineGL::run(int nCmdShow)
 {
-
     prepareWindow(nCmdShow);
     initShaders();
 

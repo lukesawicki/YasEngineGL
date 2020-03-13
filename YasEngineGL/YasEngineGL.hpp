@@ -41,9 +41,7 @@ class YasEngineGL
 
         
         //OpenGL
-
-
-
+        void extractFunctionsPointers();
         void printShaderLog(GLuint shader);
         void printProgramLog(int prog);
         bool checkOpenGLError();
@@ -51,7 +49,7 @@ class YasEngineGL
         // GLuint - shorthand for “unsigned int”, provided by OpenGL.
         GLuint shaderProgram;
         GLuint vertexArrayObjectIds[1];
-        ////
+
         static std::string engineName;
         static std::string applicationName;
 
@@ -62,7 +60,26 @@ class YasEngineGL
 
 		bool windowed;
 
-        // OpenGL and extension functions:
+        // OpenGL and extension function pointers:
+
+        // For working with shaders
+        PFNGLCREATESHADERPROC glCreateShader;
+        PFNGLCREATEPROGRAMPROC glCreateProgram;
+        PFNGLSHADERSOURCEPROC glShaderSource;
+        PFNGLCOMPILESHADERPROC glCompileShader;
+        PFNGLATTACHSHADERPROC glAttachShader;
+        PFNGLLINKPROGRAMPROC glLinkProgram;
+        PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
+        PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
+
+        // For error checking and logging
+        PFNGLGETSHADERIVPROC glGetShaderiv;
+        PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+        PFNGLGETPROGRAMIVPROC glGetProgramiv;
+        PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
+
+        // For rendering
+        PFNGLUSEPROGRAMPROC glUseProgram;
 };
 
 #endif
