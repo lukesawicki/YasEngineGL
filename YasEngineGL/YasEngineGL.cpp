@@ -5,6 +5,7 @@
 
 std::string YasEngineGL::engineName = "YasEngine";
 std::string YasEngineGL::applicationName = "YasEngine Demo Application";
+std::string YasEngineGL::shadersPath = "Shaders\\";
 
 LRESULT CALLBACK YasEngineGL::windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -79,42 +80,98 @@ YasEngineGL::YasEngineGL(HINSTANCE hInstance)
     applicationHandle = hInstance;
 }
 
+std::string YasEngineGL::loadShaderCode(std::string fileName)
+{
+    std::ifstream shaderCodeFile;
+    shaderCodeFile.open(shadersPath + fileName);
+
+    std::string line;
+    std::string shaderCode;
+    while (std::getline(shaderCodeFile, line))
+    {
+        //std::cout << "Line: " << line << std::endl;
+        shaderCode.append(line + "\n");//.append("\n");
+        //shaderCode.append(line);//.append("\n");
+    }
+    //std::cout << "Loaded code: " << shaderCode << std::endl;
+    shaderCodeFile.close();
+    return shaderCode;
+}
+
 GLuint YasEngineGL::createShaderProgram()
 {
-    const char *vertexShaderSource =
-		"#version 430    \n"
-		"void main(void) \n"
-		"{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
+    GLint vertexShaderCompiled;
+    GLint fragmentShaderCompiled;
+    GLint shadersLinked;
 
-	const char *fragmentShaderSource =
-		"#version 430    \n"
-		"out vec4 color; \n"
-		"void main(void) \n"
-		"{\n" 
-            "if (gl_FragCoord.x < 300)\n"
-            "{\n"
-            "color = vec4(1.0, 0.0, 0.0, 1.0); \n"
-            "}\n"
-            "else\n"
-            "{\n"
-                "color = vec4(0.0, 0.0, 1.0, 1.0); \n"
-            "}\n"
-        "}\n";
+    std::string shaderCodeVert = loadShaderCode("squareVertexShader.vert");
+
+    const char *vertexShaderSource = shaderCodeVert.c_str();//loadShaderCode("squareVertexShader.vert").c_str(); // =
+    //std::cout << "Vertex: " << vertexShaderSource << std::endl;
+		//"#version 430    \n"
+		//"void main(void) \n"
+		//"{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
+
+    std::string shaderCodeFrag = loadShaderCode("squareFragmentShader.frag").c_str();
+	const char *fragmentShaderSource = shaderCodeFrag.c_str();
+    //std::cout << "Fragment: " << fragmentShaderSource << std::endl;
+		//"#version 430    \n"
+		//"out vec4 color; \n"
+		//"void main(void) \n"
+		//"{\n" 
+  //          "if (gl_FragCoord.x < 300)\n"
+  //          "{\n"
+  //          "color = vec4(1.0, 0.0, 0.0, 1.0); \n"
+  //          "}\n"
+  //          "else\n"
+  //          "{\n"
+  //              "color = vec4(0.0, 0.0, 1.0, 1.0); \n"
+  //          "}\n"
+  //      "}\n";
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	
-
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(vertexShader);
+	
+    glCompileShader(vertexShader);
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vertexShaderCompiled);
+    if(vertexShaderCompiled == 1)
+    {
+        std::cout << "Vertex shader compilation success" << std::endl;
+    }
+    else
+    {
+        std::cout << "Vertex shader compilation failed" << std::endl;
+    }
+
 	glCompileShader(fragmentShader);
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fragmentShaderCompiled);
+    if(fragmentShaderCompiled == 1)
+    {
+        std::cout << "Fragment shader compilation success." << std::endl;
+    }
+    else
+    {
+        std::cout << "Fragment shader compilation failed." << std::endl;
+    }
 
     GLuint vertexAndFragmentShaderProgram = glCreateProgram();
 		
 	glAttachShader(vertexAndFragmentShaderProgram, vertexShader);
 	glAttachShader(vertexAndFragmentShaderProgram, fragmentShader);
 	glLinkProgram(vertexAndFragmentShaderProgram);
+    glGetProgramiv(vertexAndFragmentShaderProgram, GL_LINK_STATUS, &shadersLinked);
+    if(shadersLinked == 1)
+    {
+        std::cout << "Shaders linking succeeded." << std::endl;
+    }
+    else
+    {
+        std::cout << "Shaders linking failed." << std::endl;
+        printProgramLog(vertexAndFragmentShaderProgram);
+    }
 
 	return vertexAndFragmentShaderProgram;
 }
@@ -195,39 +252,39 @@ void YasEngineGL::prepareWindow(int nCmdShow)
     if(fakePixelFormatId == 0)
     {
         std::cout << "Choosing pixel format failed." << std::endl;
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     if(SetPixelFormat(fakeDeviceContext, fakePixelFormatId, &fakePixelFormatDescriptor) == false)
     {
         std::cout << "Setting pixel format failed." << std::endl;
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     HGLRC fakeRenderingContext = wglCreateContext(fakeDeviceContext);
  
     if (fakeRenderingContext == 0) {
         std::cout << "wglCreateContext() failed." << std::endl;
-        exit(1);
+        exit(EXIT_FAILURE);
     }
  
     if (wglMakeCurrent(fakeDeviceContext, fakeRenderingContext) == false) {
         std::cout << "wglMakeCurrent() failed." << std::endl;
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = nullptr;
     wglChoosePixelFormatARB = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(wglGetProcAddress("wglChoosePixelFormatARB"));
     if (wglChoosePixelFormatARB == nullptr) {
         std::cout << "wglGetProcAddress() failed." << std::endl;
-        exit(1);
+        exit(EXIT_FAILURE);
     }
  
     PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = nullptr;
     wglCreateContextAttribsARB = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
     if (wglCreateContextAttribsARB == nullptr) {
         std::cout << "wglGetProcAddress() failed." << std::endl;
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     windowHandle = CreateWindow(windowClassName, applicationName.c_str(), style, windowXposition, windowYposition,
@@ -256,7 +313,7 @@ void YasEngineGL::prepareWindow(int nCmdShow)
 
 	if (status == false || formatsNumber == 0) {
 		std::cout << "wglChoosePixelFormatARB() failed." << std::endl;
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	PIXELFORMATDESCRIPTOR pixelFormatDescriptor;
@@ -274,7 +331,7 @@ void YasEngineGL::prepareWindow(int nCmdShow)
 	renderingContext = wglCreateContextAttribsARB(deviceContext, 0, contextAttribs);
 	if (renderingContext == NULL) {
 		std::cout << "wglCreateContextAttribsARB() failed." << std::endl;
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	// Delete temporary context and window
@@ -285,7 +342,7 @@ void YasEngineGL::prepareWindow(int nCmdShow)
 	DestroyWindow(fakeWindow);
 	if (!wglMakeCurrent(deviceContext, renderingContext)) {
 		std::cout << "wglMakeCurrent() failed." << std::endl;
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	SetWindowText(windowHandle, reinterpret_cast<LPCSTR>(glGetString(GL_VERSION)));
@@ -302,27 +359,27 @@ void YasEngineGL::prepareWindow(int nCmdShow)
 
 void YasEngineGL::printShaderLog(GLuint shader)
 {
-    int len = 0;
-	int chWrittn = 0;
+    int length = 0;
+	int charactersWritten = 0;
 	char *log;
-	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
-	if (len > 0) {
-		log = (char *)malloc(len);
-		glGetShaderInfoLog(shader, len, &chWrittn, log);
+	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+	if (length > 0) {
+		log = (char *)malloc(length);
+		glGetShaderInfoLog(shader, length, &charactersWritten, log);
 		std::cout << "Shader Info Log: " << log << std::endl;
 		free(log);
 	}
 }
 
-void YasEngineGL::printProgramLog(int prog)
+void YasEngineGL::printProgramLog(int shaderProgram)
 {
-    int len = 0;
-	int chWrittn = 0;
+    int length = 0;
+	int charactersWritten = 0;
 	char *log;
-	glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &len);
-	if (len > 0) {
-		log = (char *)malloc(len);
-		glGetProgramInfoLog(prog, len, &chWrittn, log);
+	glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &length);
+	if (length > 0) {
+		log = (char *)malloc(length);
+		glGetProgramInfoLog(shaderProgram, length, &charactersWritten, log);
 		std::cout << "Program Info Log: " << log << std::endl;
 		free(log);
 	}
@@ -331,11 +388,11 @@ void YasEngineGL::printProgramLog(int prog)
 bool YasEngineGL::checkOpenGLError()
 {
     bool foundError = false;
-	int glErr = glGetError();
-	while (glErr != GL_NO_ERROR) {
-		std::cout << "glError: " << glErr << std::endl;
+	int glError = glGetError();
+	while (glError != GL_NO_ERROR) {
+		std::cout << "glError: " << glError << std::endl;
 		foundError = true;
-		glErr = glGetError();
+		glError = glGetError();
 	}
 	return foundError;
 }

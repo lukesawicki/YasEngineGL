@@ -50,4 +50,12 @@
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\squareFragmentShader.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Shaders\squareVertexShader.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

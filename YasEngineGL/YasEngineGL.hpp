@@ -1,5 +1,6 @@
 #ifndef YASENGINEGL_HPP
 #define YASENGINEGL_HPP
+#include<cstring>
 #include<string>
 #include<iostream>
 #include<fstream>
@@ -25,6 +26,7 @@ class YasEngineGL
         GLuint createShaderProgram();
         void initShaders();
         void clear();
+        std::string loadShaderCode(std::string fileName);
 
     private:
         //WinAPI
@@ -52,6 +54,7 @@ class YasEngineGL
 
         static std::string engineName;
         static std::string applicationName;
+        static std::string shadersPath;
 
         int windowXposition;
         int windowYposition;
