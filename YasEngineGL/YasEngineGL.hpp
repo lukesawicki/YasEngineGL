@@ -100,31 +100,46 @@ class YasEngineGL
         PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
         PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
         PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
-
         ////////////////
-
         // END NEW ONES
 
+        // CUBE EXAMPLE START
 
+        static const int NUMBER_OF_VERTEX_ARRAY_OBJECTS = 1;
+        static const int NUMBER_OF_VERTEX_BUFFER_OBJECTS = 2;
 
-        ///////////////////////////
-        //typedef void (APIENTRYP PFNGLUNIFORMMATRIX4FVPROC) (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
-        //GLEW_FUN_EXPORT PFNGLUNIFORMMATRIX4FVPROC __glewUniformMatrix4fv;
+        float cameraX;
+        float cameraY;
+        float cameraZ;
 
-        //glUniformMatrix4fv
-        //typedef void (APIENTRYP PFNGLUNIFORMMATRIX4FVPROC) (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
-        ///////////////////////////
+        float cubeLocationX;
+        float cubeLocationY;
+        float cubeLocationZ;
 
+        //int width;
+        //int height;
+        float aspect;
 
+        Matrix4GLF perspectiveMatrix;
+        //glm::mat4 perspectiveMatrix;
+        //glm::mat4 viewMatrix;
+        Matrix4GLF viewMatrix;
+        //glm::mat4 modelMatrix;
+        Matrix4GLF modelMatrix;
+        //glm::mat4 modelViewMatrix;
+        Matrix4GLF modelViewMatrix;
 
-        //glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, glm::value_ptr(modelViewMatrix));
-    
-    
-        // GLM FUNCTION
-        //glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix);
+        GLuint renderingProgram;
 
+        GLuint vertexArrayObject[NUMBER_OF_VERTEX_ARRAY_OBJECTS];
+        GLuint vertexBufferObject[NUMBER_OF_VERTEX_BUFFER_OBJECTS];
 
+        GLuint modelViewLocation;
+        GLuint projectionLocation;
 
+        void setupVertices();
+
+        // CUBE EXAMPLE DATA END
 
         // Gameplay
         float pointSizeChangingFactor = 1;

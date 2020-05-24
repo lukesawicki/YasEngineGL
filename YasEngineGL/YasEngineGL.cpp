@@ -66,7 +66,7 @@ void YasEngineGL::extractFunctionsPointers()
 
 YasEngineGL::YasEngineGL(HINSTANCE hInstance)
 {
-    windowWidth = 600; // 640;
+    windowWidth = 800; // 640;
 	windowHeight = 600; // 360;
 	
     windowXposition = 0;
@@ -408,6 +408,32 @@ void YasEngineGL::initShaders() {
 	glBindVertexArray(vertexArrayObjectIds[0]);
 }
 
+void YasEngineGL::setupVertices()
+{
+	float vertexPositionsCube[108] =
+    {
+		-1.0F,  1.0F, -1.0F, -1.0F, -1.0F, -1.0F,  1.0F, -1.0F, -1.0F,
+		 1.0F, -1.0F, -1.0F,  1.0F,  1.0F, -1.0F, -1.0F,  1.0F, -1.0F,
+		 1.0F, -1.0F, -1.0F,  1.0F, -1.0F,  1.0F,  1.0F,  1.0F, -1.0F,
+		 1.0F, -1.0F,  1.0F,  1.0F,  1.0F,  1.0F,  1.0F,  1.0F, -1.0F,
+		 1.0F, -1.0F,  1.0F, -1.0F, -1.0F,  1.0F,  1.0F,  1.0F,  1.0F,
+		-1.0F, -1.0F,  1.0F, -1.0F,  1.0F,  1.0F,  1.0F,  1.0F,  1.0F,
+		-1.0F, -1.0F,  1.0F, -1.0F, -1.0F, -1.0F, -1.0F,  1.0F,  1.0F,
+		-1.0F, -1.0F, -1.0F, -1.0F,  1.0F, -1.0F, -1.0F,  1.0F,  1.0F,
+		-1.0F, -1.0F,  1.0F,  1.0F, -1.0F,  1.0F,  1.0F, -1.0F, -1.0F,
+		 1.0F, -1.0F, -1.0F, -1.0F, -1.0F, -1.0F, -1.0F, -1.0F,  1.0F,
+		-1.0F,  1.0F, -1.0F,  1.0F,  1.0F, -1.0F,  1.0F,  1.0F,  1.0F,
+		 1.0F,  1.0F,  1.0F, -1.0F,  1.0F,  1.0F, -1.0F,  1.0F, -1.0F
+	};
+
+    glGenVertexArrays(NUMBER_OF_VERTEX_ARRAY_OBJECTS, vertexArrayObject); // extracted
+	glBindVertexArray(vertexArrayObject[0]); //
+    glGenBuffers(NUMBER_OF_VERTEX_BUFFER_OBJECTS, vertexBufferObject); //
+
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject[0]); //
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositionsCube), vertexPositionsCube, GL_STATIC_DRAW); //
+}
+
 void YasEngineGL::clear()
 {    
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -420,19 +446,46 @@ void YasEngineGL::render(float deltaTime, float &x)
     clear();
 
     glUseProgram(shaderProgram);
-    x += stepFactor;
-    if(x > 1.0F)
-    {
-        stepFactor = -0.1F;
-    }
-    if(x < -1.0F)
-    {
-        stepFactor = 0.1F;
-    }
 
-    GLuint offsetTrianglePosition = glGetUniformLocation(shaderProgram, "offset");
-    glProgramUniform1f(shaderProgram, offsetLoc, x);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+    //mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
+    //projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
+    modelViewLocation = glGetUniformLocation(shaderProgram, "mv_matrix"); // Returns the location of a uniform variable // extracted
+    projectionLocation = glGetUniformLocation(shaderProgram, "proj_matrix"); // extracted
+
+
+	//glfwGetFramebufferSize(window, &width, &height);
+	aspect = static_cast<float>(windowWidth / windowHeight);
+
+	//pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
+    perspectiveMatrix = buildPerspectiveProjectionMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
+
+	//vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
+    viewMatrix = buildTranslationMatrixGLF(-cameraX, -cameraY, -cameraZ);
+
+	//mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+    modelMatrix = buildTranslationMatrixGLF(cubeLocationX, cubeLocationY, cubeLocationZ);
+
+	//mvMat = vMat * mMat;
+    modelViewMatrix = multiplyAbyB(viewMatrix, modelMatrix);
+
+	glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix.x1);//glm::value_ptr(mvMat));
+	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &perspectiveMatrix.x1);//glm::value_ptr(pMat));
+
+
+        //    GLuint vertexArrayObject[NUMBER_OF_VERTEX_ARRAY_OBJECTS];
+        //GLuint vertexBufferObject[NUMBER_OF_VERTEX_BUFFER_OBJECTS];
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject[0]);
+	glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+	glEnableVertexAttribArray(0);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+
+
+    //GLuint offsetTrianglePosition = glGetUniformLocation(shaderProgram, "offset");
+    //glProgramUniform1f(shaderProgram, offsetLoc, x);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
 void YasEngineGL::swapBuffers()
@@ -461,7 +514,20 @@ void YasEngineGL::run(int nCmdShow)
     float stepFactor = 0.01F;
 
     prepareWindow(nCmdShow);
+
+
+
     initShaders();
+
+    // CUBE START
+    cameraX = 0.0f; cameraY = 0.0f; cameraZ = 8.0f;
+    float cubeLocationX;
+    float cubeLocationY;
+    float cubeLocationZ;
+	cubeLocationX = 0.0f; cubeLocationY = -2.0f; cubeLocationZ = 0.0f;
+    setupVertices();
+
+    // CUBE END
 
     std::cout << "Windows and OpenGL context Prepared... starting rendering" << std::endl;
 
