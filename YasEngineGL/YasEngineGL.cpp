@@ -44,6 +44,24 @@ void YasEngineGL::extractFunctionsPointers()
 
     // For rendering
     glUseProgram = reinterpret_cast<PFNGLUSEPROGRAMPROC>(wglGetProcAddress("glUseProgram"));
+    glGetUniformLocation = reinterpret_cast<PFNGLGETUNIFORMLOCATIONPROC>(wglGetProcAddress("glGetUniformLocation"));
+    glProgramUniform1f = reinterpret_cast<PFNGLPROGRAMUNIFORM1FEXTPROC>(wglGetProcAddress("glProgramUniform1f"));
+
+    // New ones
+    //glBindVertexArray = reinterpret_cast<PFNGLBINDVERTEXARRAYPROC>(wglGetProcAddress("glBindVertexArray"));
+
+    glGenBuffers = reinterpret_cast<PFNGLGENBUFFERSPROC>(wglGetProcAddress("glGenBuffers"));
+
+    glBindBuffer = reinterpret_cast<PFNGLBINDBUFFERPROC>(wglGetProcAddress("glBindBuffer"));
+
+    glBufferData = reinterpret_cast<PFNGLBUFFERDATAPROC>(wglGetProcAddress("glBufferData"));
+
+    glUniformMatrix4fv = reinterpret_cast<PFNGLUNIFORMMATRIX4FVPROC>(wglGetProcAddress("glUniformMatrix4fv"));
+
+    glVertexAttribPointer = reinterpret_cast<PFNGLVERTEXATTRIBPOINTERPROC>(wglGetProcAddress("glVertexAttribPointer"));
+
+    glEnableVertexAttribArray = reinterpret_cast<PFNGLENABLEVERTEXATTRIBARRAYPROC>(wglGetProcAddress("glEnableVertexAttribArray"));
+    // End new ones
 }
 
 YasEngineGL::YasEngineGL(HINSTANCE hInstance)
@@ -78,6 +96,8 @@ YasEngineGL::YasEngineGL(HINSTANCE hInstance)
     std::cout.clear();
 
     applicationHandle = hInstance;
+
+    //buildTranslationMatrix(2.0F, 2.0F, 2.0F);
 }
 
 std::string YasEngineGL::loadShaderCode(std::string fileName)
@@ -105,33 +125,17 @@ GLuint YasEngineGL::createShaderProgram()
     GLint shadersLinked;
 
     std::string shaderCodeVert = loadShaderCode("squareVertexShader.vert");
-
-    const char *vertexShaderSource = shaderCodeVert.c_str();//loadShaderCode("squareVertexShader.vert").c_str(); // =
-    //std::cout << "Vertex: " << vertexShaderSource << std::endl;
-		//"#version 430    \n"
-		//"void main(void) \n"
-		//"{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
+    const char *vertexShaderSource = shaderCodeVert.c_str();
 
     std::string shaderCodeFrag = loadShaderCode("squareFragmentShader.frag").c_str();
 	const char *fragmentShaderSource = shaderCodeFrag.c_str();
-    //std::cout << "Fragment: " << fragmentShaderSource << std::endl;
-		//"#version 430    \n"
-		//"out vec4 color; \n"
-		//"void main(void) \n"
-		//"{\n" 
-  //          "if (gl_FragCoord.x < 300)\n"
-  //          "{\n"
-  //          "color = vec4(1.0, 0.0, 0.0, 1.0); \n"
-  //          "}\n"
-  //          "else\n"
-  //          "{\n"
-  //              "color = vec4(0.0, 0.0, 1.0, 1.0); \n"
-  //          "}\n"
-  //      "}\n";
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	
+    // glShaderSource gives table of integers with lenghts of each line in shader code 
+    // and if is null the program automatically create this table but only if each line will
+    // be null-terminated \0
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	
@@ -163,6 +167,7 @@ GLuint YasEngineGL::createShaderProgram()
 	glAttachShader(vertexAndFragmentShaderProgram, fragmentShader);
 	glLinkProgram(vertexAndFragmentShaderProgram);
     glGetProgramiv(vertexAndFragmentShaderProgram, GL_LINK_STATUS, &shadersLinked);
+    
     if(shadersLinked == 1)
     {
         std::cout << "Shaders linking succeeded." << std::endl;
@@ -405,15 +410,29 @@ void YasEngineGL::initShaders() {
 
 void YasEngineGL::clear()
 {    
-    glClearColor(1.0F, 0.0F, 0.0F, 1.0F);
+    glClear(GL_DEPTH_BUFFER_BIT);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void YasEngineGL::render()
+void YasEngineGL::render(float deltaTime, float &x)
 {
+    clear();
+
     glUseProgram(shaderProgram);
-	glPointSize(80.0f);
-	glDrawArrays(GL_POINTS, 0, 1);
+    x += stepFactor;
+    if(x > 1.0F)
+    {
+        stepFactor = -0.1F;
+    }
+    if(x < -1.0F)
+    {
+        stepFactor = 0.1F;
+    }
+
+    GLuint offsetTrianglePosition = glGetUniformLocation(shaderProgram, "offset");
+    glProgramUniform1f(shaderProgram, offsetLoc, x);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void YasEngineGL::swapBuffers()
@@ -437,6 +456,10 @@ void YasEngineGL::destroy() {
 
 void YasEngineGL::run(int nCmdShow)
 {
+    // Temporary gameplay/application mechanics
+    float x = 0.0F;
+    float stepFactor = 0.01F;
+
     prepareWindow(nCmdShow);
     initShaders();
 
@@ -468,8 +491,7 @@ void YasEngineGL::run(int nCmdShow)
             newTime = timePicker.getSeconds();
             deltaTime = newTime - time;
             time = newTime;
-            //clear();
-            render();
+            render( deltaTime, x);
 		    swapBuffers();
             frames++;
             fpsTime = fpsTime + deltaTime;

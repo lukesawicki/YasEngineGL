@@ -144,7 +144,7 @@
     <ClInclude Include="Vector.hpp" />
     <ClInclude Include="YasEngineGL.hpp" />
     <ClInclude Include="YasLog.hpp" />
-    <ClInclude Include="YasMathLib.hpp" />
+    <ClInclude Include="YasMathsLib.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Notes.txt" />

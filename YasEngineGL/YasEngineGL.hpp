@@ -9,6 +9,7 @@
 #include<glext.h>
 #include<wglext.h>
 #include"TimePicker.hpp"
+#include"YasMathsLib.hpp"
 
 //-----------------------------------------------------------------------------|---------------------------------------|
 //                                                                            80                                     120
@@ -17,16 +18,18 @@ class YasEngineGL
 {
     public:
         YasEngineGL(HINSTANCE hInstance);
-
-        void render();
-        void swapBuffers();
         void prepareWindow(int nCmdShow);
         void run(int nCmdShow);
         void destroy();
-        GLuint createShaderProgram();
-        void initShaders();
+
         void clear();
+        void render(float deltaTime, float &x);
+        void swapBuffers();
+
+        void initShaders();
         std::string loadShaderCode(std::string fileName);
+        GLuint createShaderProgram();
+        float stepFactor = 0.1F;
 
     private:
         //WinAPI
@@ -52,6 +55,8 @@ class YasEngineGL
         GLuint shaderProgram;
         GLuint vertexArrayObjectIds[1];
 
+        GLuint offsetLoc;
+
         static std::string engineName;
         static std::string applicationName;
         static std::string shadersPath;
@@ -75,6 +80,7 @@ class YasEngineGL
         PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
         PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
 
+
         // For error checking and logging
         PFNGLGETSHADERIVPROC glGetShaderiv;
         PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
@@ -83,6 +89,45 @@ class YasEngineGL
 
         // For rendering
         PFNGLUSEPROGRAMPROC glUseProgram;
+        PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+        PFNGLPROGRAMUNIFORM1FEXTPROC glProgramUniform1f;
+
+        // NEW ONES
+        ////////////////
+        PFNGLGENBUFFERSPROC glGenBuffers;
+        PFNGLBINDBUFFERPROC glBindBuffer;
+        PFNGLBUFFERDATAPROC glBufferData;
+        PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
+        PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
+        PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+
+        ////////////////
+
+        // END NEW ONES
+
+
+
+        ///////////////////////////
+        //typedef void (APIENTRYP PFNGLUNIFORMMATRIX4FVPROC) (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+        //GLEW_FUN_EXPORT PFNGLUNIFORMMATRIX4FVPROC __glewUniformMatrix4fv;
+
+        //glUniformMatrix4fv
+        //typedef void (APIENTRYP PFNGLUNIFORMMATRIX4FVPROC) (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+        ///////////////////////////
+
+
+
+        //glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, glm::value_ptr(modelViewMatrix));
+    
+    
+        // GLM FUNCTION
+        //glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix);
+
+
+
+
+        // Gameplay
+        float pointSizeChangingFactor = 1;
 };
 
 #endif

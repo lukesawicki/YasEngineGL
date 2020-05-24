@@ -38,10 +38,10 @@
     <ClInclude Include="Vector.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="YasMathLib.hpp">
+    <ClInclude Include="Main.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Main.hpp">
+    <ClInclude Include="YasMathsLib.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
