@@ -166,6 +166,9 @@ GLuint YasEngineGL::createShaderProgram()
 	glAttachShader(vertexAndFragmentShaderProgram, vertexShader);
 	glAttachShader(vertexAndFragmentShaderProgram, fragmentShader);
 	glLinkProgram(vertexAndFragmentShaderProgram);
+
+    checkOpenGLError();
+
     glGetProgramiv(vertexAndFragmentShaderProgram, GL_LINK_STATUS, &shadersLinked);
     
     if(shadersLinked == 1)
@@ -404,8 +407,10 @@ bool YasEngineGL::checkOpenGLError()
 
 void YasEngineGL::initShaders() {
     shaderProgram = createShaderProgram();
-    glGenVertexArrays(1, vertexArrayObjectIds);
-	glBindVertexArray(vertexArrayObjectIds[0]);
+
+
+ //   glGenVertexArrays(1, vertexArrayObjectIds);
+	//glBindVertexArray(vertexArrayObjectIds[0]);
 }
 
 void YasEngineGL::setupVertices()
@@ -515,16 +520,18 @@ void YasEngineGL::run(int nCmdShow)
 
     prepareWindow(nCmdShow);
 
-
-
     initShaders();
-
     // CUBE START
-    cameraX = 0.0f; cameraY = 0.0f; cameraZ = 8.0f;
-    float cubeLocationX;
-    float cubeLocationY;
-    float cubeLocationZ;
-	cubeLocationX = 0.0f; cubeLocationY = -2.0f; cubeLocationZ = 0.0f;
+    cameraX = 0.0f;
+    cameraY = 0.0f;
+    cameraZ = 8.0f;
+    
+    //float cubeLocationX;
+    //float cubeLocationY;
+    //float cubeLocationZ;
+	cubeLocationX = 0.0f;
+    cubeLocationY = -2.0f;
+    cubeLocationZ = 0.0f;
     setupVertices();
 
     // CUBE END
