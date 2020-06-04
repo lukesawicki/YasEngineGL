@@ -72,15 +72,25 @@ static Matrix4F buildPerspectiveProjectionMatrix(float fieldOfViewY, float aspec
 
 static Matrix4GLF buildPerspectiveProjectionMatrixGLF(float fieldOfViewY, float aspectRatio, float zNearPlane, float zFarPlane)
 {
+    //float m[4][4]; // [wiersz][kolumna]
+
     // TODO check this:
     // assert(abs(aspect - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
     Matrix4GLF mat;
       
-    mat.x1 = static_cast<GLfloat>(1 / ((tan(fieldOfViewY/2.0F)) * aspectRatio)); mat.y1 = 0; mat.z1 = 0; mat.w1 = 0;
-    mat.x2 = 0; mat.y2 = static_cast<GLfloat>(1 / (tan(fieldOfViewY/2))); mat.z2 = 0; mat.w2 = 0;
-    mat.x3 = 0; mat.y3 = 0; mat.z3 = static_cast<GLfloat>( (zNearPlane + zFarPlane)/(zNearPlane - zFarPlane) ); mat.w3 = static_cast<GLfloat>( (2 * zNearPlane * zFarPlane)/(zNearPlane - zFarPlane) );
-    mat.x4 = 0; mat.y4 = 0; mat.z4 = -1; mat.w4 = 0;
-    
+    //mat.x1 = static_cast<GLfloat>(1 / ((tan(fieldOfViewY/2.0F)) * aspectRatio)); mat.y1 = 0; mat.z1 = 0; mat.w1 = 0;
+    //mat.x2 = 0; mat.y2 = static_cast<GLfloat>(1 / (tan(fieldOfViewY/2))); mat.z2 = 0; mat.w2 = 0;
+    //mat.x3 = 0; mat.y3 = 0; mat.z3 = static_cast<GLfloat>( (zNearPlane + zFarPlane)/(zNearPlane - zFarPlane) ); mat.w3 = static_cast<GLfloat>( (2 * zNearPlane * zFarPlane)/(zNearPlane - zFarPlane) );
+    //mat.x4 = 0; mat.y4 = 0; mat.z4 = -1; mat.w4 = 0;
+    ////
+
+    mat.x1 = static_cast<GLfloat>(1 / ((tan(fieldOfViewY/2.0F)) * aspectRatio)); mat.y1 = 0;                                               mat.z1 = 0;                                                                                mat.w1 = 0;
+    mat.x2 = 0;                                                                  mat.y2 = static_cast<GLfloat>(1 / (tan(fieldOfViewY/2))); mat.z2 = 0;                                                                                mat.w2 = 0;
+    mat.x3 = 0;                                                                  mat.y3 = 0;                                               mat.z3 = static_cast<GLfloat>( (zNearPlane + zFarPlane)/(zNearPlane - zFarPlane) );        mat.w3 = -1.0F;
+    mat.x4 = 0;                                                                  mat.y4 = 0;                                               mat.z4 = static_cast<GLfloat>(-(( 2 * zFarPlane * zNearPlane) / zFarPlane - zNearPlane )); mat.w4 = 0;
+
+    ////
+
     return mat;
 }
 

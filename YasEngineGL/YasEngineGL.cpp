@@ -518,6 +518,15 @@ void YasEngineGL::run(int nCmdShow)
     float x = 0.0F;
     float stepFactor = 0.01F;
 
+    Vector3F testSize;
+    
+    std::cout << "Size of whole 3 float structure: " << sizeof(testSize) << std::endl;
+    std::cout << "Size of one float variable " << sizeof(x) << std::endl;
+
+    std::cout << "address of structure: " << (int)&testSize << std::endl;
+    std::cout << "address of first element: " << (int)&testSize.x << std::endl;
+    std::cout << "address of second element: " << (int)&testSize.y << std::endl;
+
     prepareWindow(nCmdShow);
 
     initShaders();
