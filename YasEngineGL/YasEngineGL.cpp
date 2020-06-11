@@ -407,28 +407,24 @@ bool YasEngineGL::checkOpenGLError()
 
 void YasEngineGL::initShaders() {
     shaderProgram = createShaderProgram();
-
-
- //   glGenVertexArrays(1, vertexArrayObjectIds);
-	//glBindVertexArray(vertexArrayObjectIds[0]);
 }
 
 void YasEngineGL::setupVertices()
 {
 	float vertexPositionsCube[108] =
     {
-		-1.0F,  1.0F, -1.0F, -1.0F, -1.0F, -1.0F,  1.0F, -1.0F, -1.0F,
-		 1.0F, -1.0F, -1.0F,  1.0F,  1.0F, -1.0F, -1.0F,  1.0F, -1.0F,
-		 1.0F, -1.0F, -1.0F,  1.0F, -1.0F,  1.0F,  1.0F,  1.0F, -1.0F,
-		 1.0F, -1.0F,  1.0F,  1.0F,  1.0F,  1.0F,  1.0F,  1.0F, -1.0F,
-		 1.0F, -1.0F,  1.0F, -1.0F, -1.0F,  1.0F,  1.0F,  1.0F,  1.0F,
-		-1.0F, -1.0F,  1.0F, -1.0F,  1.0F,  1.0F,  1.0F,  1.0F,  1.0F,
-		-1.0F, -1.0F,  1.0F, -1.0F, -1.0F, -1.0F, -1.0F,  1.0F,  1.0F,
-		-1.0F, -1.0F, -1.0F, -1.0F,  1.0F, -1.0F, -1.0F,  1.0F,  1.0F,
-		-1.0F, -1.0F,  1.0F,  1.0F, -1.0F,  1.0F,  1.0F, -1.0F, -1.0F,
-		 1.0F, -1.0F, -1.0F, -1.0F, -1.0F, -1.0F, -1.0F, -1.0F,  1.0F,
-		-1.0F,  1.0F, -1.0F,  1.0F,  1.0F, -1.0F,  1.0F,  1.0F,  1.0F,
-		 1.0F,  1.0F,  1.0F, -1.0F,  1.0F,  1.0F, -1.0F,  1.0F, -1.0F
+		-1.0F,  1.0F, -1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/ 1.0F, -1.0F, -1.0F,
+		 1.0F, -1.0F, -1.0F, /*|*/ 1.0F,  1.0F, -1.0F, /*|*/-1.0F,  1.0F, -1.0F,
+		 1.0F, -1.0F, -1.0F, /*|*/ 1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F, -1.0F,
+		 1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F, /*|*/ 1.0F,  1.0F, -1.0F,
+		 1.0F, -1.0F,  1.0F, /*|*/-1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F,
+		-1.0F, -1.0F,  1.0F, /*|*/-1.0F,  1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F,
+		-1.0F, -1.0F,  1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/-1.0F,  1.0F,  1.0F,
+		-1.0F, -1.0F, -1.0F, /*|*/-1.0F,  1.0F, -1.0F, /*|*/-1.0F,  1.0F,  1.0F,
+		-1.0F, -1.0F,  1.0F, /*|*/ 1.0F, -1.0F,  1.0F, /*|*/ 1.0F, -1.0F, -1.0F,
+		 1.0F, -1.0F, -1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/-1.0F, -1.0F,  1.0F,
+		-1.0F,  1.0F, -1.0F, /*|*/ 1.0F,  1.0F, -1.0F, /*|*/ 1.0F,  1.0F,  1.0F,
+		 1.0F,  1.0F,  1.0F, /*|*/-1.0F,  1.0F,  1.0F, /*|*/-1.0F,  1.0F, -1.0F
 	};
 
     glGenVertexArrays(NUMBER_OF_VERTEX_ARRAY_OBJECTS, vertexArrayObject); // extracted
@@ -476,9 +472,8 @@ void YasEngineGL::render(float deltaTime, float &x)
 	glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix.x1);//glm::value_ptr(mvMat));
 	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &perspectiveMatrix.x1);//glm::value_ptr(pMat));
 
-
-        //    GLuint vertexArrayObject[NUMBER_OF_VERTEX_ARRAY_OBJECTS];
-        //GLuint vertexBufferObject[NUMBER_OF_VERTEX_BUFFER_OBJECTS];
+    //GLuint vertexArrayObject[NUMBER_OF_VERTEX_ARRAY_OBJECTS];
+    //GLuint vertexBufferObject[NUMBER_OF_VERTEX_BUFFER_OBJECTS];
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject[0]);
 	glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
