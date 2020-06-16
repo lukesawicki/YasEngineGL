@@ -6,6 +6,8 @@
 //-----------------------------------------------------------------------------|---------------------------------------|
 //                                                                            80                                     120
 
+// In OpenGL matrices are defined using column major order
+
 //namespace YasMathsLib {
 struct Vector4F {
     float x;
@@ -60,6 +62,7 @@ static Matrix4F buildPerspectiveProjectionMatrix(float fieldOfViewY, float aspec
 {
     // TODO check this:
     // assert(abs(aspect - std::numeric_limits<T>::epsilon()) > static_cast<T>(0));
+    // This matrix is row major
     Matrix4F mat;
       
     mat.x1 = 1.0F / ((tan(fieldOfViewY/2.0F)) * aspectRatio); mat.y1 = 0.0F;                             mat.z1 = 0.0F;                                                  mat.w1 = 0.0F;
