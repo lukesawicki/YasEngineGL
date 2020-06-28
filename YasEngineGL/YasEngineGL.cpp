@@ -458,16 +458,24 @@ void YasEngineGL::render(float deltaTime, float &x)
 	aspect = static_cast<float>(windowWidth / windowHeight);
 
 	//pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
-    perspectiveMatrix = buildPerspectiveProjectionMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
+    //perspectiveMatrix = buildPerspectiveProjectionMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
+    perspectiveMatrix = buildPerspectiveProjectionMatrixGLFCM(1.0472F, aspect, 0.1F, 1000.0F);
+    //buildPerspectiveProjectionMatrixCM
 
 	//vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
-    viewMatrix = buildTranslationMatrixGLF(-cameraX, -cameraY, -cameraZ);
+    
+    //viewMatrix = buildTranslationMatrixGLF(-cameraX, -cameraY, -cameraZ);
+    viewMatrix = buildTranslationMatrixGLFCM(-cameraX, -cameraY, -cameraZ);
+
+    ////
 
 	//mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
-    modelMatrix = buildTranslationMatrixGLF(cubeLocationX, cubeLocationY, cubeLocationZ);
+    
+    //modelMatrix = buildTranslationMatrixGLF(cubeLocationX, cubeLocationY, cubeLocationZ);
+    modelMatrix = buildTranslationMatrixGLFCM(cubeLocationX, cubeLocationY, cubeLocationZ);
 
 	//mvMat = vMat * mMat;
-    modelViewMatrix = multiplyAbyB(viewMatrix, modelMatrix);
+    modelViewMatrix = multiplyAbyBCM(viewMatrix, modelMatrix);
 
 	glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix.x1);//glm::value_ptr(mvMat));
 	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &perspectiveMatrix.x1);//glm::value_ptr(pMat));
