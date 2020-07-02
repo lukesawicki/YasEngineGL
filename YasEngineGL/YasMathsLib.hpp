@@ -76,7 +76,7 @@ static Matrix4GLF multiplyAbyBCM(Matrix4GLF a, Matrix4GLF b)
 {
     Matrix4GLF mat = {
         a.x1*b.x1 + a.x2*b.y1 + a.x3*b.z1 + a.x4*b.w1, /*|*/ a.x1*b.x2 + a.x2*b.y2 + a.x3*b.z2 + a.x4*b.w2, /*|*/ a.x1*b.x3 + a.x2*b.y3 + a.x3*b.z3 + a.x4*b.w3, /*|*/ a.x1*b.x4 + a.x2*b.y4 + a.x3*b.z4 + a.x4*b.w4,
-        a.y1*b.x1 + a.y2*b.y1 + a.y3*b.z1 + a.x4*b.w1, /*|*/ a.y1*b.x2 + a.y2*b.y2 + a.y3*b.z2 + a.y4*b.w2, /*|*/ a.y1*b.x3 + a.y2*b.y3 + a.y3*b.z3 + a.y4*b.w3, /*|*/ a.y1*b.x4 + a.y2*b.y4 + a.y3*b.z4 + a.y4*b.w4,
+        a.y1*b.x1 + a.y2*b.y1 + a.y3*b.z1 + a.y4*b.w1, /*|*/ a.y1*b.x2 + a.y2*b.y2 + a.y3*b.z2 + a.y4*b.w2, /*|*/ a.y1*b.x3 + a.y2*b.y3 + a.y3*b.z3 + a.y4*b.w3, /*|*/ a.y1*b.x4 + a.y2*b.y4 + a.y3*b.z4 + a.y4*b.w4,
         a.z1*b.x1 + a.z2*b.y1 + a.z3*b.z1 + a.z4*b.w1, /*|*/ a.z1*b.x2 + a.z2*b.y2 + a.z3*b.z2 + a.z4*b.w2, /*|*/ a.z1*b.x3 + a.z2*b.y3 + a.z3*b.z3 + a.z4*b.w3, /*|*/ a.z1*b.x4 + a.z2*b.y4 + a.z3*b.z4 + a.z4*b.w4, 
         a.w1*b.x1 + a.w2*b.y1 + a.w3*b.z1 + a.w4*b.w1, /*|*/ a.w1*b.x2 + a.w2*b.y2 + a.w3*b.z2 + a.w4*b.w2, /*|*/ a.w1*b.x3 + a.w2*b.y3 + a.w3*b.z3 + a.w4*b.w3, /*|*/ a.w1*b.x4 + a.w2*b.y4 + a.w3*b.z4 + a.w4*b.w4, 
     };
