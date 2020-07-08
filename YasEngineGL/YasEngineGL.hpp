@@ -129,6 +129,11 @@ class YasEngineGL
         //glm::mat4 modelViewMatrix;
         Matrix4GLF modelViewMatrix;
 
+        Matrix4GLF modelTranslationMatrix;
+        Matrix4GLF modelRotationMatrix;
+
+        const float SPEED = 1.75;
+
         GLuint renderingProgram;
 
         GLuint vertexArrayObject[NUMBER_OF_VERTEX_ARRAY_OBJECTS];

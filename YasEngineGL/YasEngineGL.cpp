@@ -66,8 +66,8 @@ void YasEngineGL::extractFunctionsPointers()
 
 YasEngineGL::YasEngineGL(HINSTANCE hInstance)
 {
-    windowWidth = 800; // 640;
-	windowHeight = 600; // 360;
+    windowWidth = 600;
+	windowHeight = 600;
 	
     windowXposition = 0;
 	windowYposition = 0;
@@ -438,11 +438,11 @@ void YasEngineGL::setupVertices()
 void YasEngineGL::clear()
 {    
     glClear(GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
+	//glClearColor(0.0, 0.0, 0.0, 1.0);
 }
 
-void YasEngineGL::render(float deltaTime, float &x)
+void YasEngineGL::render(float deltaTime, float &currentTime)
 {
     clear();
 
@@ -453,24 +453,40 @@ void YasEngineGL::render(float deltaTime, float &x)
     modelViewLocation = glGetUniformLocation(shaderProgram, "mv_matrix"); // Returns the location of a uniform variable // extracted
     projectionLocation = glGetUniformLocation(shaderProgram, "proj_matrix"); // extracted
 
-
 	//glfwGetFramebufferSize(window, &width, &height);
 	aspect = static_cast<float>(windowWidth / windowHeight);
 
 	//pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
-    perspectiveMatrix = buildPerspectiveProjectionMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
+    perspectiveMatrix = buildPerspectiveProjectionMatrixGLFRM(1.0472F, aspect, 0.1F, 1000.0F);
 
 	//vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
     viewMatrix = buildTranslationMatrixGLF(-cameraX, -cameraY, -cameraZ);
 
 	//mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
-    modelMatrix = buildTranslationMatrixGLF(cubeLocationX, cubeLocationY, cubeLocationZ);
+    //modelMatrix = buildTranslationMatrixGLF(cubeLocationX, cubeLocationY, cubeLocationZ);
+
+    //Matrix4GLF modelTranslationMatrix = buildTranslationMatrixGLF(sin(0.35F*deltaTime)*2.0F, cos(0.52F*deltaTime)*2.0F, sin(0.7F*deltaTime)*2.0F);
+
+    // Attention This is memory leak !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
+    //delta += SPEED * deltaTime;
+    /*modelRotationMatrix = &buildYawMatrix(1.75F*currentTime);
+    modelRotationMatrix = &multiplyAbyB(*modelRotationMatrix, buildPitchMatrix(1.75F*currentTime));
+    modelRotationMatrix = &multiplyAbyB(*modelRotationMatrix, buildRollMatrix(1.75F*currentTime));*/
+
+    //modelMatrix = multiplyAbyB(modelMatrix, buildRollMatrix(1.75F*currentTime)); // *modelRotationMatrix;
+    modelRotationMatrix = buildRollMatrix(1.75F*currentTime);
+
+    modelMatrix = multiply(modelTranslationMatrix, modelRotationMatrix);
+
+    //modelMatrix = multiplyAbyB(modelTranslationMatrix, *modelRotationMatrix);
+
 
 	//mvMat = vMat * mMat;
-    modelViewMatrix = multiplyAbyB(viewMatrix, modelMatrix);
+    modelViewMatrix = multiply(viewMatrix, modelMatrix);
 
-	glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix.x1);//glm::value_ptr(mvMat));
-	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &perspectiveMatrix.x1);//glm::value_ptr(pMat));
+	glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix.me11);//glm::value_ptr(mvMat));
+	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &perspectiveMatrix.me11);//glm::value_ptr(pMat));
 
     //GLuint vertexArrayObject[NUMBER_OF_VERTEX_ARRAY_OBJECTS];
     //GLuint vertexBufferObject[NUMBER_OF_VERTEX_BUFFER_OBJECTS];
@@ -509,30 +525,15 @@ void YasEngineGL::destroy() {
 
 void YasEngineGL::run(int nCmdShow)
 {
-    // Temporary gameplay/application mechanics
-    float x = 0.0F;
-    float stepFactor = 0.01F;
-
-    Vector3F testSize;
-    
-    std::cout << "Size of whole 3 float structure: " << sizeof(testSize) << std::endl;
-    std::cout << "Size of one float variable " << sizeof(x) << std::endl;
-
-    std::cout << "address of structure: " << (int)&testSize << std::endl;
-    std::cout << "address of first element: " << (int)&testSize.x << std::endl;
-    std::cout << "address of second element: " << (int)&testSize.y << std::endl;
-
     prepareWindow(nCmdShow);
 
     initShaders();
+
     // CUBE START
     cameraX = 0.0f;
     cameraY = 0.0f;
     cameraZ = 8.0f;
-    
-    //float cubeLocationX;
-    //float cubeLocationY;
-    //float cubeLocationZ;
+
 	cubeLocationX = 0.0f;
     cubeLocationY = -2.0f;
     cubeLocationZ = 0.0f;
@@ -568,7 +569,8 @@ void YasEngineGL::run(int nCmdShow)
             newTime = timePicker.getSeconds();
             deltaTime = newTime - time;
             time = newTime;
-            render( deltaTime, x);
+
+            render( deltaTime, newTime);
 		    swapBuffers();
             frames++;
             fpsTime = fpsTime + deltaTime;
