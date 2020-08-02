@@ -1,5 +1,5 @@
-#ifndef YASMATHSLIB_HPP
-#define YASMATHSLIB_HPP
+#ifndef YASMATHLIB_HPP
+#define YASMATHLIB_HPP
 
 #include<cmath>
 
@@ -30,7 +30,7 @@ struct Matrix4GLF {
 
 } typedef Mat4GLF;
 
-static Matrix4GLF multiply(Matrix4GLF a, Matrix4GLF b)
+static Matrix4GLF multiply(const Matrix4GLF& a,const Matrix4GLF& b)
 {
     Matrix4GLF mat = {
         a.me11*b.me11 + a.me12*b.me21 + a.me13*b.me31 + a.me14*b.me41, /*|*/ a.me11*b.me12 + a.me12*b.me22 + a.me13*b.me32 + a.me14*b.me42, /*|*/ a.me11*b.me13 + a.me12*b.me23 + a.me13*b.me33 + a.me14*b.me43, /*|*/ a.me11*b.me14 + a.me12*b.me24 + a.me13*b.me34 + a.me14*b.me44,
@@ -41,79 +41,74 @@ static Matrix4GLF multiply(Matrix4GLF a, Matrix4GLF b)
     return mat;
 }
 
-static Matrix4GLF buildPerspectiveProjectionMatrixGLF(float fieldOfViewY, float aspectRatio, float zNearPlane, float zFarPlane)
+static Matrix4GLF buildPerspectiveProjectionMatrixGLF(const float& fieldOfViewY, const float& aspectRatio, const float& zNearPlane, const float& zFarPlane)
 {
-    Matrix4GLF mat;
-
-    mat.me11 = static_cast<GLfloat>(1 / ((tan(fieldOfViewY/2.0F)) * aspectRatio)); mat.me12 = 0;                                               mat.me13 = 0;                                                                                mat.me14 = 0;
-    mat.me21 = 0;                                                                  mat.me22 = static_cast<GLfloat>(1 / (tan(fieldOfViewY/2))); mat.me23 = 0;                                                                                mat.me24 = 0;
-    mat.me31 = 0;                                                                  mat.me32 = 0;                                               mat.me33 = static_cast<GLfloat>( (zNearPlane + zFarPlane)/(zNearPlane - zFarPlane) );        mat.me34 = -1.0F;
-    mat.me41 = 0;                                                                  mat.me42 = 0;                                               mat.me43 = static_cast<GLfloat>(-(( 2 * zFarPlane * zNearPlane) / zFarPlane - zNearPlane )); mat.me44 = 0;
+    Matrix4GLF mat = {
+        static_cast<GLfloat>(1 / ((tan(fieldOfViewY/2.0F)) * aspectRatio)), 0,                                               0,                                                                                0,
+        0,                                                                  static_cast<GLfloat>(1 / (tan(fieldOfViewY/2))), 0,                                                                                0,
+        0,                                                                  0,                                               static_cast<GLfloat>( (zNearPlane + zFarPlane)/(zNearPlane - zFarPlane) ),        -1.0F,
+        0,                                                                  0,                                               static_cast<GLfloat>(-(( 2 * zFarPlane * zNearPlane) / zFarPlane - zNearPlane )), 0
+    };
 
     return mat;
 }
 
-static Matrix4GLF buildTranslationMatrixGLF(GLfloat x, GLfloat y, GLfloat z)
+static Matrix4GLF buildTranslationMatrixGLF(const GLfloat& x, const GLfloat& y, const GLfloat&  z)
 {
-    Matrix4GLF mat;
-      
-    mat.me11 = 1.0F; mat.me12 = 0.0F; mat.me13 = 0.0F; mat.me14 = 0.0F;
-    mat.me21 = 0.0F; mat.me22 = 1.0F; mat.me23 = 0.0F; mat.me24 = 0.0F;
-    mat.me31 = 0.0F; mat.me32 = 0.0F; mat.me33 = 1.0F; mat.me34 = 0.0F;
-    mat.me41 = x;    mat.me42 = y;    mat.me43 = z;    mat.me44 = 1.0F;
-    
+    Matrix4GLF mat = {
+        mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = 0.0F, mat.me14 = 0.0F,
+        mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = 0.0F, mat.me24 = 0.0F,
+        mat.me31 = 0.0F, mat.me32 = 0.0F, mat.me33 = 1.0F, mat.me34 = 0.0F,
+        mat.me41 = x,    mat.me42 = y,    mat.me43 = z,    mat.me44 = 1.0F
+    };
     return mat;
 }
 
  // Rotate around X axis
-static Matrix4GLF buildPitchMatrix(float rad)
+static Matrix4GLF buildPitchMatrix(const float& rad)
 {
-    Matrix4GLF mat;
-
-    mat.me11 = 1.0F; mat.me12 = 0.0F;     mat.me13 = 0.0F;      mat.me14 = 0.0F;
-    mat.me21 = 0.0F; mat.me22 = cos(rad); mat.me23 = -sin(rad); mat.me24 = 0.0F;
-    mat.me31 = 0.0F; mat.me32 = sin(rad); mat.me33 = cos(rad);  mat.me34 = 0.0F;
-    mat.me41 = 0.0F; mat.me42 = 0.0F;     mat.me43 = 0.0F;      mat.me44 = 1.0F;
-        
+    Matrix4GLF mat = {
+        mat.me11 = 1.0F, mat.me12 = 0.0F,     mat.me13 = 0.0F,      mat.me14 = 0.0F,
+        mat.me21 = 0.0F, mat.me22 = cos(rad), mat.me23 = -sin(rad), mat.me24 = 0.0F,
+        mat.me31 = 0.0F, mat.me32 = sin(rad), mat.me33 = cos(rad),  mat.me34 = 0.0F,
+        mat.me41 = 0.0F, mat.me42 = 0.0F,     mat.me43 = 0.0F,      mat.me44 = 1.0F,
+    };
     return mat;
 }
 
 // Rotate around Y axis
-static Matrix4GLF buildYawMatrix(float rad)
+static Matrix4GLF buildYawMatrix(const float& rad)
 {
-    Matrix4GLF mat;
-
-    mat.me11 = cos(rad);  mat.me12 = 0.0F; mat.me13 = sin(rad); mat.me14 = 0.0F;
-    mat.me21 = 0.0F;      mat.me22 = 1.0F; mat.me23 = 0.0F;     mat.me24 = 0.0F;
-    mat.me31 = -sin(rad); mat.me32 = 0.0F; mat.me33 = cos(rad); mat.me34 = 0.0F;
-    mat.me41 = 0.0F;      mat.me42 = 0.0F; mat.me43 = 0.0F;     mat.me44 = 1.0F;
-        
+    Matrix4GLF mat = {
+        mat.me11 = cos(rad),  mat.me12 = 0.0F, mat.me13 = sin(rad), mat.me14 = 0.0F,
+        mat.me21 = 0.0F,      mat.me22 = 1.0F, mat.me23 = 0.0F,     mat.me24 = 0.0F,
+        mat.me31 = -sin(rad), mat.me32 = 0.0F, mat.me33 = cos(rad), mat.me34 = 0.0F,
+        mat.me41 = 0.0F,      mat.me42 = 0.0F, mat.me43 = 0.0F,     mat.me44 = 1.0F,
+    };
     return mat;
 }
 
 // Rotate around Z axis
-static Matrix4GLF buildRollMatrix(float rad)
+static Matrix4GLF buildRollMatrix(const float& rad)
 {
-    Matrix4GLF mat;
-
-    mat.me11 = cos(rad); mat.me12 = -sin(rad); mat.me13 = 0.0F; mat.me14 = 0.0F;
-    mat.me21 = sin(rad); mat.me22 = cos(rad);  mat.me23 = 0.0F; mat.me24 = 0.0F;
-    mat.me31 = 0.0F;     mat.me32 = 0.0F;      mat.me33 = 1.0F; mat.me34 = 0.0F;
-    mat.me41 = 0.0F;     mat.me42 = 0.0F;      mat.me43 = 0.0F; mat.me44 = 1.0F;
-
+    Matrix4GLF mat = {
+        mat.me11 = cos(rad), mat.me12 = -sin(rad), mat.me13 = 0.0F, mat.me14 = 0.0F,
+        mat.me21 = sin(rad), mat.me22 = cos(rad),  mat.me23 = 0.0F, mat.me24 = 0.0F,
+        mat.me31 = 0.0F,     mat.me32 = 0.0F,      mat.me33 = 1.0F, mat.me34 = 0.0F,
+        mat.me41 = 0.0F,     mat.me42 = 0.0F,      mat.me43 = 0.0F, mat.me44 = 1.0F,
+    };
     return mat;
 }
 
 //Scale
-static Matrix4GLF buildScaleMatrix(float x, float y, float z)
+static Matrix4GLF buildScaleMatrix(const float& x, const float& y, const float& z)
 {
-    Matrix4GLF mat;
-
-    mat.me11 = x;    mat.me12 = 0.0F; mat.me12 = 0.0F; mat.me12 = 0.0F;
-    mat.me21 = 0.0F; mat.me22 = y;    mat.me22 = 0.0F; mat.me22 = 0.0F;
-    mat.me31 = 0.0F; mat.me32 = 0.0F; mat.me32 = z;    mat.me32 = 0.0F;
-    mat.me41 = 0.0F; mat.me42 = 0.0F; mat.me42 = 0.0F; mat.me42 = 1.0F;
-
+    Matrix4GLF mat = {
+        mat.me11 = x,    mat.me12 = 0.0F, mat.me12 = 0.0F, mat.me12 = 0.0F,
+        mat.me21 = 0.0F, mat.me22 = y,    mat.me22 = 0.0F, mat.me22 = 0.0F,
+        mat.me31 = 0.0F, mat.me32 = 0.0F, mat.me32 = z,    mat.me32 = 0.0F,
+        mat.me41 = 0.0F, mat.me42 = 0.0F, mat.me42 = 0.0F, mat.me42 = 1.0F,
+    };
     return mat;
 }
 
@@ -133,7 +128,7 @@ static void transponse(Matrix4GLF &mat)
     mat.me41=matCopy.me14; mat.me42=matCopy.me24; mat.me43=matCopy.me34; mat.me44=matCopy.me44;
 }
 
-#endif YASMATHSLIB_HPP
+#endif YASMATHLIB_HPP
 
 //                                                                            80                                     120
 //-----------------------------------------------------------------------------|---------------------------------------|

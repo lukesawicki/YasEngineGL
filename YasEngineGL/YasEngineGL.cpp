@@ -439,57 +439,31 @@ void YasEngineGL::clear()
 {    
     glClear(GL_DEPTH_BUFFER_BIT);
     glClear(GL_COLOR_BUFFER_BIT);
-	//glClearColor(0.0, 0.0, 0.0, 1.0);
 }
 
-void YasEngineGL::render(float deltaTime, float &currentTime)
+void YasEngineGL::render(float deltaTime)
 {
     clear();
 
     glUseProgram(shaderProgram);
 
-    //mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
-    //projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
-    modelViewLocation = glGetUniformLocation(shaderProgram, "mv_matrix"); // Returns the location of a uniform variable // extracted
-    projectionLocation = glGetUniformLocation(shaderProgram, "proj_matrix"); // extracted
+    modelViewLocation = glGetUniformLocation(shaderProgram, "mv_matrix");
+    projectionLocation = glGetUniformLocation(shaderProgram, "proj_matrix");
 
-	//glfwGetFramebufferSize(window, &width, &height);
 	aspect = static_cast<float>(windowWidth / windowHeight);
 
-	//pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
-    perspectiveMatrix = buildPerspectiveProjectionMatrixGLFRM(1.0472F, aspect, 0.1F, 1000.0F);
+    perspectiveMatrix = buildPerspectiveProjectionMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
 
-	//vMat = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, -cameraZ));
     viewMatrix = buildTranslationMatrixGLF(-cameraX, -cameraY, -cameraZ);
 
-	//mMat = glm::translate(glm::mat4(1.0f), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
-    //modelMatrix = buildTranslationMatrixGLF(cubeLocationX, cubeLocationY, cubeLocationZ);
-
-    //Matrix4GLF modelTranslationMatrix = buildTranslationMatrixGLF(sin(0.35F*deltaTime)*2.0F, cos(0.52F*deltaTime)*2.0F, sin(0.7F*deltaTime)*2.0F);
-
-    // Attention This is memory leak !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    
-    //delta += SPEED * deltaTime;
-    /*modelRotationMatrix = &buildYawMatrix(1.75F*currentTime);
-    modelRotationMatrix = &multiplyAbyB(*modelRotationMatrix, buildPitchMatrix(1.75F*currentTime));
-    modelRotationMatrix = &multiplyAbyB(*modelRotationMatrix, buildRollMatrix(1.75F*currentTime));*/
-
-    //modelMatrix = multiplyAbyB(modelMatrix, buildRollMatrix(1.75F*currentTime)); // *modelRotationMatrix;
-    modelRotationMatrix = buildRollMatrix(1.75F*currentTime);
+    modelRotationMatrix = buildRollMatrix(-1.75F*deltaTime); // it is not delta time
 
     modelMatrix = multiply(modelTranslationMatrix, modelRotationMatrix);
 
-    //modelMatrix = multiplyAbyB(modelTranslationMatrix, *modelRotationMatrix);
-
-
-	//mvMat = vMat * mMat;
     modelViewMatrix = multiply(viewMatrix, modelMatrix);
 
-	glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix.me11);//glm::value_ptr(mvMat));
-	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &perspectiveMatrix.me11);//glm::value_ptr(pMat));
-
-    //GLuint vertexArrayObject[NUMBER_OF_VERTEX_ARRAY_OBJECTS];
-    //GLuint vertexBufferObject[NUMBER_OF_VERTEX_BUFFER_OBJECTS];
+	glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix.me11);
+	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &perspectiveMatrix.me11);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject[0]);
 	glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
@@ -498,9 +472,6 @@ void YasEngineGL::render(float deltaTime, float &currentTime)
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
-
-    //GLuint offsetTrianglePosition = glGetUniformLocation(shaderProgram, "offset");
-    //glProgramUniform1f(shaderProgram, offsetLoc, x);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
@@ -552,7 +523,8 @@ void YasEngineGL::run(int nCmdShow)
     MSG message;
 
     TimePicker timePicker = TimePicker();
-    time = timePicker.getSeconds();
+time = timePicker.getSeconds();
+
     fpsTime = 0.0F;
     frames = 0;
     message.message = WM_NULL;
@@ -564,23 +536,24 @@ void YasEngineGL::run(int nCmdShow)
             TranslateMessage(&message);
             DispatchMessage(&message);
         }
-        else
-        {
-            newTime = timePicker.getSeconds();
-            deltaTime = newTime - time;
-            time = newTime;
 
-            render( deltaTime, newTime);
-		    swapBuffers();
-            frames++;
-            fpsTime = fpsTime + deltaTime;
-            if(fpsTime >= 1.0F)
-            {
-                fps = frames / fpsTime;
-                frames = 0;
-                fpsTime = 0.0F;
-            }
+        newTime = timePicker.getSeconds();
+        deltaTime = newTime - time;
+        time = newTime;
+
+        //render(deltaTime);
+        render(newTime);
+
+		swapBuffers();
+        frames++;
+        fpsTime = fpsTime + deltaTime;
+        if(fpsTime >= 1.0F)
+        {
+            fps = frames / fpsTime;
+            frames = 0;
+            fpsTime = 0.0F;
         }
+
     }
     destroy();
 }

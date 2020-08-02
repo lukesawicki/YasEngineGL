@@ -41,7 +41,7 @@
     <ClInclude Include="Main.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="YasMathsLib.hpp">
+    <ClInclude Include="YasMathLib.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,7 +9,7 @@
 #include<glext.h>
 #include<wglext.h>
 #include"TimePicker.hpp"
-#include"YasMathsLib.hpp"
+#include"YasMathLib.hpp"
 
 //-----------------------------------------------------------------------------|---------------------------------------|
 //                                                                            80                                     120
@@ -23,14 +23,13 @@ class YasEngineGL
         void destroy();
 
         void clear();
-        void render(float deltaTime, float &x);
+        void render(float deltaTime);
         void swapBuffers();
 
         void initShaders();
         std::string loadShaderCode(std::string fileName);
         GLuint createShaderProgram();
-        float stepFactor = 0.1F;
-
+ 
     private:
         //WinAPI
 
@@ -116,23 +115,20 @@ class YasEngineGL
         float cubeLocationY;
         float cubeLocationZ;
 
-        //int width;
-        //int height;
         float aspect;
 
+        float rotation = 0.0F;
+
         Matrix4GLF perspectiveMatrix;
-        //glm::mat4 perspectiveMatrix;
-        //glm::mat4 viewMatrix;
+
         Matrix4GLF viewMatrix;
-        //glm::mat4 modelMatrix;
+
         Matrix4GLF modelMatrix;
-        //glm::mat4 modelViewMatrix;
+
         Matrix4GLF modelViewMatrix;
 
         Matrix4GLF modelTranslationMatrix;
         Matrix4GLF modelRotationMatrix;
-
-        const float SPEED = 1.75;
 
         GLuint renderingProgram;
 
@@ -143,11 +139,6 @@ class YasEngineGL
         GLuint projectionLocation;
 
         void setupVertices();
-
-        // CUBE EXAMPLE DATA END
-
-        // Gameplay
-        float pointSizeChangingFactor = 1;
 };
 
 #endif
