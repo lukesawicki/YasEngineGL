@@ -41,7 +41,7 @@ static Matrix4GLF multiply(const Matrix4GLF& a,const Matrix4GLF& b)
     return mat;
 }
 
-static Matrix4GLF buildPerspectiveProjectionMatrixGLF(const float& fieldOfViewY, const float& aspectRatio, const float& zNearPlane, const float& zFarPlane)
+static Matrix4GLF buildPerspectiveMatrixGLF(const float& fieldOfViewY, const float& aspectRatio, const float& zNearPlane, const float& zFarPlane)
 {
     Matrix4GLF mat = {
         static_cast<GLfloat>(1 / ((tan(fieldOfViewY/2.0F)) * aspectRatio)), 0,                                               0,                                                                                0,

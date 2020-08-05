@@ -452,13 +452,15 @@ void YasEngineGL::render(float deltaTime)
 
 	aspect = static_cast<float>(windowWidth / windowHeight);
 
-    perspectiveMatrix = buildPerspectiveProjectionMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
+    perspectiveMatrix = buildPerspectiveMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
 
+    //std::cout << (int)&perspectiveMatrix.me11 << std::endl;
+    
     viewMatrix = buildTranslationMatrixGLF(-cameraX, -cameraY, -cameraZ);
 
-    modelRotationMatrix = buildRollMatrix(-1.75F*deltaTime); // it is not delta time
+    rotationModelMatrix = buildRollMatrix(-1.75F*static_cast<float>(deltaTime)); // it is not delta time only for time when I'm doing exercise from book
 
-    modelMatrix = multiply(modelTranslationMatrix, modelRotationMatrix);
+    modelMatrix = multiply(modelTranslationMatrix, rotationModelMatrix);
 
     modelViewMatrix = multiply(viewMatrix, modelMatrix);
 
@@ -523,7 +525,7 @@ void YasEngineGL::run(int nCmdShow)
     MSG message;
 
     TimePicker timePicker = TimePicker();
-time = timePicker.getSeconds();
+    time = timePicker.getSeconds();
 
     fpsTime = 0.0F;
     frames = 0;
@@ -536,22 +538,24 @@ time = timePicker.getSeconds();
             TranslateMessage(&message);
             DispatchMessage(&message);
         }
-
-        newTime = timePicker.getSeconds();
-        deltaTime = newTime - time;
-        time = newTime;
-
-        //render(deltaTime);
-        render(newTime);
-
-		swapBuffers();
-        frames++;
-        fpsTime = fpsTime + deltaTime;
-        if(fpsTime >= 1.0F)
+        else
         {
-            fps = frames / fpsTime;
-            frames = 0;
-            fpsTime = 0.0F;
+            newTime = timePicker.getSeconds();
+            deltaTime = newTime - time;
+            time = newTime;
+        
+            //std::cout << std::fixed << newTime << std::endl;
+            render(newTime);
+		    swapBuffers();
+
+            ++frames;
+            fpsTime = fpsTime + deltaTime;
+            if(fpsTime >= 1.0F)
+            {
+                fps = frames / fpsTime;
+                frames = 0;
+                fpsTime = 0.0F;
+            }
         }
 
     }

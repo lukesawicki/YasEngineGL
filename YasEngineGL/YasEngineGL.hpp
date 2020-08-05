@@ -54,8 +54,6 @@ class YasEngineGL
         GLuint shaderProgram;
         GLuint vertexArrayObjectIds[1];
 
-        GLuint offsetLoc;
-
         static std::string engineName;
         static std::string applicationName;
         static std::string shadersPath;
@@ -128,7 +126,7 @@ class YasEngineGL
         Matrix4GLF modelViewMatrix;
 
         Matrix4GLF modelTranslationMatrix;
-        Matrix4GLF modelRotationMatrix;
+        Matrix4GLF rotationModelMatrix;
 
         GLuint renderingProgram;
 
