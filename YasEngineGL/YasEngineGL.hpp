@@ -115,7 +115,7 @@ class YasEngineGL
 
         float aspect;
 
-        float rotation = 0.0F;
+        float rotationStep = 0.0F;
 
         Matrix4GLF perspectiveMatrix;
 

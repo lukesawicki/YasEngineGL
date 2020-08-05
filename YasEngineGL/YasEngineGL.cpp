@@ -457,8 +457,8 @@ void YasEngineGL::render(float deltaTime)
     //std::cout << (int)&perspectiveMatrix.me11 << std::endl;
     
     viewMatrix = buildTranslationMatrixGLF(-cameraX, -cameraY, -cameraZ);
-
-    rotationModelMatrix = buildRollMatrix(-1.75F*static_cast<float>(deltaTime)); // it is not delta time only for time when I'm doing exercise from book
+    rotationStep = rotationStep+-1.75F*static_cast<float>(deltaTime);
+    rotationModelMatrix = buildRollMatrix(rotationStep); // it is not delta time only for time when I'm doing exercise from book
 
     modelMatrix = multiply(modelTranslationMatrix, rotationModelMatrix);
 
@@ -545,7 +545,7 @@ void YasEngineGL::run(int nCmdShow)
             time = newTime;
         
             //std::cout << std::fixed << newTime << std::endl;
-            render(newTime);
+            render(deltaTime);
 		    swapBuffers();
 
             ++frames;
