@@ -458,13 +458,14 @@ void YasEngineGL::render(float deltaTime)
     
     viewMatrix = buildTranslationMatrixGLF(-cameraX, -cameraY, -cameraZ);
 
+
     rotationStep = rotationStep+-1.75F*static_cast<float>(deltaTime);
 
     xStep = xStep * sin(0.35F*deltaTime)*2.0F;
     yStep = yStep * cos(0.52F*deltaTime)*2.0F;
     zStep = zStep * sin(0.7F*deltaTime)*2.0F;
 
-    translationMatrix = buildTranslationMatrixGLF(0, 0, 0);
+    translationMatrix = buildTranslationMatrixGLF(1, 1, 1);
 //    translationMatrix = buildTranslationMatrixGLF(0.0F, 0.0F, 0.0F);
 
     //                 1               2                                       3                              4
