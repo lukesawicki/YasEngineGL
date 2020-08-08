@@ -100,6 +100,17 @@ static Matrix4GLF buildRollMatrix(const float& rad)
     return mat;
 }
 
+static Matrix4GLF buildAllRotationMatrix(const float& p, const float& y, const float& r)
+{
+    Matrix4GLF mat = {
+        mat.me11 = cos(r)*cos(y),                        mat.me12 = sin(r)*cos(y),                             mat.me13 = sin(y),         mat.me14 = 0.0F,
+        mat.me21 = sin(r)*cos(p) + cos(r)*sin(y)*sin(p), mat.me22 = cos(r)*cos(p) -(sin(r)*sin(y)*sin(p)),     mat.me23 = -sin(p)*cos(y), mat.me24 = 0.0F,
+        mat.me31 = sin(r)*sin(p) - cos(r)*sin(y)*cos(p), mat.me32 = cos(r)*sin(p) + sin(r)*sin(y)*cos(p),      mat.me33 = cos(y)*cos(p),  mat.me34 = 0.0F,
+        mat.me41 = 0.0F,                                 mat.me42 = 0.0F,                                      mat.me43 = 0.0F,           mat.me44 = 1.0F,
+    };
+    return mat;
+}
+
 //Scale
 static Matrix4GLF buildScaleMatrix(const float& x, const float& y, const float& z)
 {

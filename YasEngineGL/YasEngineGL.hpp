@@ -116,6 +116,15 @@ class YasEngineGL
         float aspect;
 
         float rotationStep = 0.0F;
+        float rotationStepAroundX = 0.0F;
+        float rotationStepAroundY = 0.0F;
+        float rotationStepAroundZ = 0.0F;
+
+        float xStep = 0.0F;
+        float yStep = 0.0F;
+        float zStep = 0.0F;
+
+        Matrix4GLF allRotationsMatrix;
 
         Matrix4GLF perspectiveMatrix;
 
@@ -127,6 +136,8 @@ class YasEngineGL
 
         Matrix4GLF modelTranslationMatrix;
         Matrix4GLF rotationModelMatrix;
+
+        Matrix4GLF translationMatrix;
 
         GLuint renderingProgram;
 
