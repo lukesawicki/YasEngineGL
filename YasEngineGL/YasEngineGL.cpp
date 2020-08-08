@@ -450,7 +450,7 @@ void YasEngineGL::render(float deltaTime)
     modelViewLocation = glGetUniformLocation(shaderProgram, "mv_matrix");
     projectionLocation = glGetUniformLocation(shaderProgram, "proj_matrix");
 
-	/// aspect = static_cast<float>(windowWidth / windowHeight);
+	aspect = static_cast<float>(windowWidth / windowHeight);
 
     perspectiveMatrix = buildPerspectiveMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
 
@@ -464,8 +464,8 @@ void YasEngineGL::render(float deltaTime)
     yStep = yStep * cos(0.52F*deltaTime)*2.0F;
     zStep = zStep * sin(0.7F*deltaTime)*2.0F;
 
-//translationMatrix = buildTranslationMatrixGLF(xStep, yStep, zStep);
-    translationMatrix = buildTranslationMatrixGLF(1.0F, 1.0F, 1.0F);
+    translationMatrix = buildTranslationMatrixGLF(0, 0, 0);
+//    translationMatrix = buildTranslationMatrixGLF(0.0F, 0.0F, 0.0F);
 
     //                 1               2                                       3                              4
     //-glm::translate(glm::mat4(1.0F), glm::vec3(sin(0.35F*currentTime)*2.0F, cos(0.52F*currentTime)*2.0F, sin(0.7F*currentTime)*2.0F));
@@ -480,11 +480,17 @@ void YasEngineGL::render(float deltaTime)
 //(const float& p, const float& y, const float& r)
     ///   simple rotation //  rotationStep = rotationStep+-1.75F*static_cast<float>(deltaTime);
     
-//rotationStepAroundX = rotationStepAroundX + sin(0.35F*deltaTime)*2.0F;
-//rotationStepAroundY = rotationStepAroundY + cos(0.52F*deltaTime)*2.0F;
-//rotationStepAroundZ = rotationStepAroundZ + sin(0.7F*deltaTime)*2.0F;
+    //rotationStepAroundX +
+    //rotationStepAroundY +
+    //rotationStepAroundZ +
 
-//allRotationsMatrix = buildAllRotationMatrix(1.0F, 1.0F, 1.0F);
+    rotationStepAroundX = sin(0.35F*deltaTime)*2.0F;
+    rotationStepAroundY = cos(0.52F*deltaTime)*2.0F;
+    rotationStepAroundZ = sin(0.7F*deltaTime)*2.0F;
+    rotationStep = rotationStep+-1.75F*static_cast<float>(deltaTime);
+
+
+    allRotationsMatrix = buildAllRotationMatrix(0, rotationStep, 0);
 
     ///////allRotationsMatrix = buildAllRotationMatrix(1.75f*(float)deltaTime,1.75f*(float)currentTime , 1.75f*(float)currentTime);
 
