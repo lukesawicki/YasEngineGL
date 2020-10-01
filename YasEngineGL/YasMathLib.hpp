@@ -8,6 +8,7 @@
 
 // In OpenGL matrices are defined using column major order but it is strange that in perspective matrix it uses row major
 
+
 struct Vector3GLF {
     GLfloat x;
     GLfloat y;
@@ -30,6 +31,10 @@ struct Matrix4GLF {
 
 } typedef Mat4GLF;
 
+static void transpose(Matrix4GLF &mat);
+static void normalizeVector(Vector3GLF& vector);
+static GLfloat getVectorMagnitude(const Vector3GLF& vector);
+
 static Matrix4GLF multiply(const Matrix4GLF& a,const Matrix4GLF& b)
 {
     Matrix4GLF mat = {
@@ -41,27 +46,74 @@ static Matrix4GLF multiply(const Matrix4GLF& a,const Matrix4GLF& b)
     return mat;
 }
 
+//static Matrix4GLF multiplyT(const Matrix4GLF& a,const Matrix4GLF& b)
+//{
+//    Matrix4GLF mat = {
+//        a.me11*b.me11 + a.me12*b.me21 + a.me13*b.me31 + a.me14*b.me41, /*|*/ a.me11*b.me12 + a.me12*b.me22 + a.me13*b.me32 + a.me14*b.me42, /*|*/ a.me11*b.me13 + a.me12*b.me23 + a.me13*b.me33 + a.me14*b.me43, /*|*/ a.me11*b.me14 + a.me12*b.me24 + a.me13*b.me34 + a.me14*b.me44,
+//        a.me21*b.me11 + a.me22*b.me21 + a.me23*b.me31 + a.me24*b.me41, /*|*/ a.me21*b.me12 + a.me22*b.me22 + a.me23*b.me32 + a.me24*b.me42, /*|*/ a.me21*b.me13 + a.me22*b.me23 + a.me23*b.me33 + a.me24*b.me43, /*|*/ a.me21*b.me14 + a.me22*b.me24 + a.me23*b.me34 + a.me24*b.me44,
+//        a.me31*b.me11 + a.me32*b.me21 + a.me33*b.me31 + a.me34*b.me41, /*|*/ a.me31*b.me12 + a.me32*b.me22 + a.me33*b.me32 + a.me34*b.me42, /*|*/ a.me31*b.me13 + a.me32*b.me23 + a.me33*b.me33 + a.me34*b.me43, /*|*/ a.me31*b.me14 + a.me32*b.me24 + a.me33*b.me34 + a.me34*b.me44,
+//        a.me41*b.me11 + a.me42*b.me21 + a.me43*b.me31 + a.me44*b.me41, /*|*/ a.me41*b.me12 + a.me42*b.me22 + a.me43*b.me32 + a.me44*b.me42, /*|*/ a.me41*b.me13 + a.me42*b.me23 + a.me43*b.me33 + a.me44*b.me43, /*|*/ a.me41*b.me14 + a.me42*b.me24 + a.me43*b.me34 + a.me44*b.me44
+//    };
+//
+//    transponse(mat);
+//
+//    return mat;
+//}
+
+// IN GLM IT IS (GLM_DEPTH_CLIP_SPACE == GLM_DEPTH_ZERO_ONE) == false
 static Matrix4GLF buildPerspectiveMatrixGLF(const float& fieldOfViewY, const float& aspectRatio, const float& zNearPlane, const float& zFarPlane)
 {
     Matrix4GLF mat = {
-        static_cast<GLfloat>(1 / ((tan(fieldOfViewY/2.0F)) * aspectRatio)), 0,                                               0,                                                                                0,
-        0,                                                                  static_cast<GLfloat>(1 / (tan(fieldOfViewY/2))), 0,                                                                                0,
-        0,                                                                  0,                                               static_cast<GLfloat>( (zNearPlane + zFarPlane)/(zNearPlane - zFarPlane) ),        -1.0F,
-        0,                                                                  0,                                               static_cast<GLfloat>(-(( 2 * zFarPlane * zNearPlane) / zFarPlane - zNearPlane )), 0
+        //0000000000000000000000000000000000000000000000000000000000000000000  111111111111111111111111111111111111111111111111111111   22222222222222222222222222222222222222222222222222222222222222222222222222222222     333333333333333333333
+        static_cast<GLfloat>(1.0F / ((tan(fieldOfViewY/2.0F)) * aspectRatio)), 0.0F,                                                    0.0F,                                                                                0.0F,  //0
+        0.0F,                                                                  static_cast<GLfloat>(1.0F / (tan(fieldOfViewY/2.0F))),   0.0F,                                                                                0.0F,  //1
+        0.0F,                                                                  0.0F,                                                    static_cast<GLfloat>( - (zFarPlane + zNearPlane)/( zFarPlane - zNearPlane) ),        -1.0F, //2
+        0.0F,                                                                  0.0F,                                                    static_cast<GLfloat>(- (2 * zFarPlane * zNearPlane) / (zFarPlane - zNearPlane) ),    0.0F   //3
     };
 
     return mat;
 }
 
+
+// IN GLM IT IS (GLM_DEPTH_CLIP_SPACE == GLM_DEPTH_ZERO_ONE) == FALSE
+//static Matrix4GLF buildPerspectiveMatrixGLF(const float& fieldOfViewY, const float& aspectRatio, const float& zNearPlane, const float& zFarPlane)
+//{
+//    Matrix4GLF mat = {
+//        static_cast<GLfloat>(1.0F / ((tan(fieldOfViewY/2.0F)) * aspectRatio)), 0.0F,                                               0.0F,                                                                                0.0F,
+//        0.0F,                                                                  static_cast<GLfloat>(1.0F / (tan(fieldOfViewY/2.0F))), 0.0F,                                                                                0.0F,
+//        0.0F,                                                                  0.0F,                                               static_cast<GLfloat>(-((zFarPlane + zNearPlane)/(zFarPlane - zNearPlane )) ),        -1.0F,
+//        0.0F,                                                                  0.0F,                                               static_cast<GLfloat>(-(( 2.0F * zFarPlane * zNearPlane) / zFarPlane - zNearPlane )), 0.0F
+//    };
+//
+//    return mat;
+//}
+
 static Matrix4GLF buildTranslationMatrixGLF(const GLfloat& x, const GLfloat& y, const GLfloat&  z)
 {
+    //Vector3GLF translationVector = {x, y, z};
+    //normalizeVector(translationVector);
+
     Matrix4GLF mat = {
         mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = 0.0F, mat.me14 = 0.0F,
         mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = 0.0F, mat.me24 = 0.0F,
         mat.me31 = 0.0F, mat.me32 = 0.0F, mat.me33 = 1.0F, mat.me34 = 0.0F,
+        //mat.me41 = translationVector.x,    mat.me42 = translationVector.y,    mat.me43 = translationVector.z,    mat.me44 = 1.0F
         mat.me41 = x,    mat.me42 = y,    mat.me43 = z,    mat.me44 = 1.0F
     };
     return mat;
+}
+
+GLfloat getVectorMagnitude(const Vector3GLF& vector)
+{
+    return sqrt(pow(vector.x, 2) + pow(vector.y, 2) + pow(vector.z, 2));
+}
+
+void normalizeVector(Vector3GLF& vector)
+{
+    GLfloat vectorMagnitude = getVectorMagnitude(vector);
+    vector.x = vector.x / vectorMagnitude;
+    vector.y = vector.y / vectorMagnitude;
+    vector.z = vector.z / vectorMagnitude;
 }
 
  // Rotate around X axis
@@ -108,6 +160,57 @@ static Matrix4GLF buildAllRotationMatrix(const float& p, const float& y, const f
         mat.me31 = sin(r)*sin(p) - cos(r)*sin(y)*cos(p), mat.me32 = cos(r)*sin(p) + sin(r)*sin(y)*cos(p),      mat.me33 = cos(y)*cos(p),  mat.me34 = 0.0F,
         mat.me41 = 0.0F,                                 mat.me42 = 0.0F,                                      mat.me43 = 0.0F,           mat.me44 = 1.0F,
     };
+
+    return mat;
+}
+
+static Matrix4GLF rotationAroundArbitraryAxies(Vector3GLF axisUnitVector, const float& angle)
+{
+    float c = cos(angle);
+    float s = sin(angle);
+
+    //Vector3GLF vectorToNormalize = {axisUnitVector.x, axisUnitVector.y, axisUnitVector.z};
+    //normalizeVector(axisUnitVector);
+    // lukesawicki !!!!!!!!!!!!!!!!!!!!!!!!!
+    //TUTAJ PRACUJE NA ELEMENTACH MACIERZY A W matrix_transform.iml jest mnozenie vektorow ktore sa czescia macierzy przez znormalizowany vector z parametru metody
+
+    //Matrix4GLF mat = {
+    //mat.me11 = c+(1.0F - c)*pow(axisUnitVector.x, 2),                           mat.me12 = (1.0F-c)*axisUnitVector.x*axisUnitVector.y - s*axisUnitVector.z, mat.me13 = (1.0F-c)*axisUnitVector.x*axisUnitVector.z + s*axisUnitVector.y, mat.me14 = 0.0F,
+    //mat.me21 = (1.0F-c)*axisUnitVector.x*axisUnitVector.y + s*axisUnitVector.z, mat.me22 = c+(1.0F - c)*pow(axisUnitVector.y, 2),                           mat.me23 = (1.0F-c)*axisUnitVector.y*axisUnitVector.z - s*axisUnitVector.x, mat.me24 = 0.0F,
+    //mat.me31 = (1.0F-c)*axisUnitVector.x*axisUnitVector.z - s*axisUnitVector.y, mat.me32 = (1.0F-c)*axisUnitVector.y*axisUnitVector.z + s*axisUnitVector.x, mat.me33 = c+(1.0F - c)*pow(axisUnitVector.z, 2),                           mat.me34 = 0.0F,
+    //mat.me41 = 0.0F,                                                            mat.me42 = 0.0F,                                                            mat.me43 = 0.0F ,                                                           mat.me44 = 1.0F,
+    //};
+    
+        Matrix4GLF mat = {
+    mat.me11 = c+(1.0F - c)*pow(axisUnitVector.x, 2),                           mat.me12 = (1.0F-c)*axisUnitVector.x*axisUnitVector.y + s*axisUnitVector.z, mat.me13 = (1.0F-c)*axisUnitVector.x*axisUnitVector.z - s*axisUnitVector.y, mat.me14 = 0.0F,
+    mat.me21 = (1.0F-c)*axisUnitVector.y*axisUnitVector.x - s*axisUnitVector.z, mat.me22 = c+(1.0F - c)*pow(axisUnitVector.y, 2),                           mat.me23 = (1.0F-c)*axisUnitVector.y*axisUnitVector.z + s*axisUnitVector.x, mat.me24 = 0.0F,
+    mat.me31 = (1.0F-c)*axisUnitVector.z*axisUnitVector.x + s*axisUnitVector.y, mat.me32 = (1.0F-c)*axisUnitVector.z*axisUnitVector.y - s*axisUnitVector.x, mat.me33 = c+(1.0F - c)*pow(axisUnitVector.z, 2),                           mat.me34 = 0.0F,
+    mat.me41 = 0.0F,                                                            mat.me42 = 0.0F,                                                            mat.me43 = 0.0F,                                                            mat.me44 = 1.0F,
+    };
+
+    return mat;
+}
+
+static Matrix4GLF rotationAroundArbitraryAxiesT(Vector3GLF axisUnitVector, const float& angle)
+{
+    float c = cos(angle);
+    float s = sin(angle);
+
+    //Matrix4GLF mat = {
+    //mat.me11 = c+(1.0F - c)*pow(axisUnitVector.x, 2),                           mat.me12 = (1.0F-c)*axisUnitVector.x*axisUnitVector.y - s*axisUnitVector.z, mat.me13 = (1.0F-c)*axisUnitVector.x*axisUnitVector.z + s*axisUnitVector.y, mat.me14 = 0.0F,
+    //mat.me21 = (1.0F-c)*axisUnitVector.x*axisUnitVector.y + s*axisUnitVector.z, mat.me22 = c+(1.0F - c)*pow(axisUnitVector.y, 2),                           mat.me23 = (1.0F-c)*axisUnitVector.y*axisUnitVector.z - s*axisUnitVector.x, mat.me24 = 0.0F,
+    //mat.me31 = (1.0F-c)*axisUnitVector.x*axisUnitVector.z - s*axisUnitVector.y, mat.me32 = (1.0F-c)*axisUnitVector.y*axisUnitVector.z + s*axisUnitVector.x, mat.me33 = c+(1.0F - c)*pow(axisUnitVector.z, 2),                           mat.me34 = 0.0F,
+    //mat.me41 = 0.0F,                                                            mat.me42 = 0.0F,                                                            mat.me43 = 0.0F ,                                                           mat.me44 = 1.0F,
+    //};
+
+    Matrix4GLF mat = {
+    mat.me11 = c+(1.0F - c)*pow(axisUnitVector.x, 2),                           mat.me12 = (1.0F-c)*axisUnitVector.x*axisUnitVector.y + s*axisUnitVector.z, mat.me13 = (1.0F-c)*axisUnitVector.x*axisUnitVector.z - s*axisUnitVector.y, mat.me14 = 0.0F,
+    mat.me21 = (1.0F-c)*axisUnitVector.y*axisUnitVector.x - s*axisUnitVector.z, mat.me22 = c+(1.0F - c)*pow(axisUnitVector.y, 2),                           mat.me23 = (1.0F-c)*axisUnitVector.y*axisUnitVector.z + s*axisUnitVector.x, mat.me24 = 0.0F,
+    mat.me31 = (1.0F-c)*axisUnitVector.z*axisUnitVector.x + s*axisUnitVector.y, mat.me32 = (1.0F-c)*axisUnitVector.z*axisUnitVector.y - s*axisUnitVector.x, mat.me33 = c+(1.0F - c)*pow(axisUnitVector.z, 2),                           mat.me34 = 0.0F,
+    mat.me41 = 0.0F,                                                            mat.me42 = 0.0F,                                                            mat.me43 = 0.0F,                                                            mat.me44 = 1.0F,
+    };
+
+    transpose(mat);
     return mat;
 }
 
@@ -124,7 +227,7 @@ static Matrix4GLF buildScaleMatrix(const float& x, const float& y, const float& 
 }
 
 //Transpose
-static void transponse(Matrix4GLF &mat)
+static void transpose(Matrix4GLF &mat)
 {
     Matrix4GLF matCopy;
 

@@ -328,7 +328,8 @@ void YasEngineGL::prepareWindow(int nCmdShow)
 	DescribePixelFormat(deviceContext, pixelFormatID, sizeof(pixelFormatDescriptor), &pixelFormatDescriptor);
 	SetPixelFormat(deviceContext, pixelFormatID, &pixelFormatDescriptor);
 
-	const int major_min = 4, minor_min = 3; // minor_min changed from 0 to 3
+	const int major_min = 4;
+    const int minor_min = 3; // minor_min changed from 0 to 3
 	const int contextAttribs[] = {
 		WGL_CONTEXT_MAJOR_VERSION_ARB, major_min,
 		WGL_CONTEXT_MINOR_VERSION_ARB, minor_min,
@@ -411,21 +412,54 @@ void YasEngineGL::initShaders() {
 
 void YasEngineGL::setupVertices()
 {
-	float vertexPositionsCube[108] =
+    //mine
+	//float vertexPositionsCube[108] =
+ //   {
+	//	-1.0F,  1.0F, -1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/ 1.0F, -1.0F, -1.0F,
+	//	 1.0F, -1.0F, -1.0F, /*|*/ 1.0F,  1.0F, -1.0F, /*|*/-1.0F,  1.0F, -1.0F,
+	//	 1.0F, -1.0F, -1.0F, /*|*/ 1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F, -1.0F,
+	//	 1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F, /*|*/ 1.0F,  1.0F, -1.0F,
+	//	 1.0F, -1.0F,  1.0F, /*|*/-1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F,
+	//	-1.0F, -1.0F,  1.0F, /*|*/-1.0F,  1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F,
+	//	-1.0F, -1.0F,  1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/-1.0F,  1.0F,  1.0F,
+	//	-1.0F, -1.0F, -1.0F, /*|*/-1.0F,  1.0F, -1.0F, /*|*/-1.0F,  1.0F,  1.0F,
+	//	-1.0F, -1.0F,  1.0F, /*|*/ 1.0F, -1.0F,  1.0F, /*|*/ 1.0F, -1.0F, -1.0F,
+	//	 1.0F, -1.0F, -1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/-1.0F, -1.0F,  1.0F,
+	//	-1.0F,  1.0F, -1.0F, /*|*/ 1.0F,  1.0F, -1.0F, /*|*/ 1.0F,  1.0F,  1.0F,
+	//	 1.0F,  1.0F,  1.0F, /*|*/-1.0F,  1.0F,  1.0F, /*|*/-1.0F,  1.0F, -1.0F
+	//};
+
+    //original
+    float vertexPositionsCube[108] =
     {
-		-1.0F,  1.0F, -1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/ 1.0F, -1.0F, -1.0F,
-		 1.0F, -1.0F, -1.0F, /*|*/ 1.0F,  1.0F, -1.0F, /*|*/-1.0F,  1.0F, -1.0F,
-		 1.0F, -1.0F, -1.0F, /*|*/ 1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F, -1.0F,
-		 1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F, /*|*/ 1.0F,  1.0F, -1.0F,
-		 1.0F, -1.0F,  1.0F, /*|*/-1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F,
-		-1.0F, -1.0F,  1.0F, /*|*/-1.0F,  1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F,
-		-1.0F, -1.0F,  1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/-1.0F,  1.0F,  1.0F,
-		-1.0F, -1.0F, -1.0F, /*|*/-1.0F,  1.0F, -1.0F, /*|*/-1.0F,  1.0F,  1.0F,
-		-1.0F, -1.0F,  1.0F, /*|*/ 1.0F, -1.0F,  1.0F, /*|*/ 1.0F, -1.0F, -1.0F,
-		 1.0F, -1.0F, -1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/-1.0F, -1.0F,  1.0F,
-		-1.0F,  1.0F, -1.0F, /*|*/ 1.0F,  1.0F, -1.0F, /*|*/ 1.0F,  1.0F,  1.0F,
-		 1.0F,  1.0F,  1.0F, /*|*/-1.0F,  1.0F,  1.0F, /*|*/-1.0F,  1.0F, -1.0F
+		-1.0F,  1.0F, -1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/ 1.0F, -1.0F, -1.0F, // 1
+		 1.0F, -1.0F, -1.0F, /*|*/ 1.0F,  1.0F, -1.0F, /*|*/-1.0F,  1.0F, -1.0F, // 2
+		 1.0F, -1.0F, -1.0F, /*|*/ 1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F, -1.0F, // 3
+		 1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F, /*|*/ 1.0F,  1.0F, -1.0F, // 4
+		 1.0F, -1.0F,  1.0F, /*|*/-1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F, // 5
+		-1.0F, -1.0F,  1.0F, /*|*/-1.0F,  1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F, // 6
+		-1.0F, -1.0F,  1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/-1.0F,  1.0F,  1.0F, // 7
+		-1.0F, -1.0F, -1.0F, /*|*/-1.0F,  1.0F, -1.0F, /*|*/-1.0F,  1.0F,  1.0F, // 8
+		-1.0F, -1.0F,  1.0F, /*|*/ 1.0F, -1.0F,  1.0F, /*|*/ 1.0F, -1.0F, -1.0F, // 9
+		 1.0F, -1.0F, -1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/-1.0F, -1.0F,  1.0F, // 10
+		-1.0F,  1.0F, -1.0F, /*|*/ 1.0F,  1.0F, -1.0F, /*|*/ 1.0F,  1.0F,  1.0F, // 11
+		 1.0F,  1.0F,  1.0F, /*|*/-1.0F,  1.0F,  1.0F, /*|*/-1.0F,  1.0F, -1.0F  // 12
 	};
+
+    // transposed
+    //float vertexPositionsCube[108] = 
+    //{
+    //-1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,1.0F	,-1.0F	,1.0F ,
+    //1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,1.0F	,1.0F ,
+    //-1.0F	,-1.0F	,-1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,1.0F	,-1.0F	,-1.0F	,1.0F ,
+    //-1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,1.0F	,-1.0F	,1.0F	,-1.0F,
+    //-1.0F	,1.0F	,-1.0F	,1.0F	,-1.0F	,1.0F	,-1.0F	,1.0F	,-1.0F	,-1.0F	,1.0F	,1.0F ,
+    //-1.0F	,-1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,-1.0F	,1.0F	,-1.0F	,-1.0F	,1.0F ,
+    //1.0F	,-1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,-1.0F	,1.0F	,-1.0F	,1.0F	,-1.0F,
+    //-1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,-1.0F	,1.0F	,1.0F ,
+    //-1.0F	,-1.0F	,-1.0F	,-1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,1.0F	,1.0F	,-1.0F
+    //};
+
 
     glGenVertexArrays(NUMBER_OF_VERTEX_ARRAY_OBJECTS, vertexArrayObject); // extracted
 	glBindVertexArray(vertexArrayObject[0]); //
@@ -450,6 +484,7 @@ void YasEngineGL::render(float deltaTime)
     modelViewLocation = glGetUniformLocation(shaderProgram, "mv_matrix");
     projectionLocation = glGetUniformLocation(shaderProgram, "proj_matrix");
 
+
 	aspect = static_cast<float>(windowWidth / windowHeight);
 
     perspectiveMatrix = buildPerspectiveMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
@@ -458,14 +493,15 @@ void YasEngineGL::render(float deltaTime)
     
     viewMatrix = buildTranslationMatrixGLF(-cameraX, -cameraY, -cameraZ);
 
+    //viewMatrix;
 
     rotationStep = rotationStep+-1.75F*static_cast<float>(deltaTime);
 
-    xStep = xStep * sin(0.35F*deltaTime)*2.0F;
-    yStep = yStep * cos(0.52F*deltaTime)*2.0F;
-    zStep = zStep * sin(0.7F*deltaTime)*2.0F;
+    //xStep = xStep * sin(0.35F*deltaTime)*2.0F;
+    //yStep = yStep * cos(0.52F*deltaTime)*2.0F;
+    //zStep = zStep * sin(0.7F*deltaTime)*2.0F;
 
-    translationMatrix = buildTranslationMatrixGLF(1, 1, 1);
+    modelTranslationMatrix = buildTranslationMatrixGLF(1, 1, 1);
 //    translationMatrix = buildTranslationMatrixGLF(0.0F, 0.0F, 0.0F);
 
     //                 1               2                                       3                              4
@@ -485,13 +521,17 @@ void YasEngineGL::render(float deltaTime)
     //rotationStepAroundY +
     //rotationStepAroundZ +
 
-    rotationStepAroundX = sin(0.35F*deltaTime)*2.0F;
-    rotationStepAroundY = cos(0.52F*deltaTime)*2.0F;
-    rotationStepAroundZ = sin(0.7F*deltaTime)*2.0F;
-    rotationStep = rotationStep+-1.75F*static_cast<float>(deltaTime);
+    //rotationStepAroundX = sin(0.35F*deltaTime)*2.0F;
+    //rotationStepAroundY = cos(0.52F*deltaTime)*2.0F;
+    //rotationStepAroundZ = sin(0.7F*deltaTime)*2.0F;
+    rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
 
 
-    allRotationsMatrix = buildAllRotationMatrix(0, rotationStep, 0);
+    Vector3GLF v3 = {0.0F, 1.0F, 0.0F};
+    
+    normalizeVector(v3);
+
+    rotationModelMatrix = rotationAroundArbitraryAxies(v3, rotationStep);//->buildAllRotationMatrix(0, rotationStep, 0);
 
     ///////allRotationsMatrix = buildAllRotationMatrix(1.75f*(float)deltaTime,1.75f*(float)currentTime , 1.75f*(float)currentTime);
 
@@ -514,7 +554,7 @@ void YasEngineGL::render(float deltaTime)
    	//rMat = glm::rotate(rotationModelMatrix, 1.75f*(float)currentTime, glm::vec3(1.0f, 0.0f, 0.0f));
 	//rMat = glm::rotate(rMat, 1.75f*(float)currentTime, glm::vec3(0.0f, 0.0f, 1.0f));
 
-    modelMatrix = multiply(translationMatrix, allRotationsMatrix); ///multiply(modelTranslationMatrix, rotationModelMatrix);
+    modelMatrix = multiply(modelTranslationMatrix, rotationModelMatrix);// allRotationsMatrix); ///multiply(modelTranslationMatrix, rotationModelMatrix);
 
     modelViewMatrix = multiply(viewMatrix, modelMatrix);
 
