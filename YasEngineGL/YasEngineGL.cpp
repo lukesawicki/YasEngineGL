@@ -412,24 +412,6 @@ void YasEngineGL::initShaders() {
 
 void YasEngineGL::setupVertices()
 {
-    //mine
-	//float vertexPositionsCube[108] =
- //   {
-	//	-1.0F,  1.0F, -1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/ 1.0F, -1.0F, -1.0F,
-	//	 1.0F, -1.0F, -1.0F, /*|*/ 1.0F,  1.0F, -1.0F, /*|*/-1.0F,  1.0F, -1.0F,
-	//	 1.0F, -1.0F, -1.0F, /*|*/ 1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F, -1.0F,
-	//	 1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F, /*|*/ 1.0F,  1.0F, -1.0F,
-	//	 1.0F, -1.0F,  1.0F, /*|*/-1.0F, -1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F,
-	//	-1.0F, -1.0F,  1.0F, /*|*/-1.0F,  1.0F,  1.0F, /*|*/ 1.0F,  1.0F,  1.0F,
-	//	-1.0F, -1.0F,  1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/-1.0F,  1.0F,  1.0F,
-	//	-1.0F, -1.0F, -1.0F, /*|*/-1.0F,  1.0F, -1.0F, /*|*/-1.0F,  1.0F,  1.0F,
-	//	-1.0F, -1.0F,  1.0F, /*|*/ 1.0F, -1.0F,  1.0F, /*|*/ 1.0F, -1.0F, -1.0F,
-	//	 1.0F, -1.0F, -1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/-1.0F, -1.0F,  1.0F,
-	//	-1.0F,  1.0F, -1.0F, /*|*/ 1.0F,  1.0F, -1.0F, /*|*/ 1.0F,  1.0F,  1.0F,
-	//	 1.0F,  1.0F,  1.0F, /*|*/-1.0F,  1.0F,  1.0F, /*|*/-1.0F,  1.0F, -1.0F
-	//};
-
-    //original
     float vertexPositionsCube[108] =
     {
 		-1.0F,  1.0F, -1.0F, /*|*/-1.0F, -1.0F, -1.0F, /*|*/ 1.0F, -1.0F, -1.0F, // 1
@@ -445,21 +427,6 @@ void YasEngineGL::setupVertices()
 		-1.0F,  1.0F, -1.0F, /*|*/ 1.0F,  1.0F, -1.0F, /*|*/ 1.0F,  1.0F,  1.0F, // 11
 		 1.0F,  1.0F,  1.0F, /*|*/-1.0F,  1.0F,  1.0F, /*|*/-1.0F,  1.0F, -1.0F  // 12
 	};
-
-    // transposed
-    //float vertexPositionsCube[108] = 
-    //{
-    //-1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,1.0F	,-1.0F	,1.0F ,
-    //1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,1.0F	,1.0F ,
-    //-1.0F	,-1.0F	,-1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,1.0F	,-1.0F	,-1.0F	,1.0F ,
-    //-1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,-1.0F	,-1.0F	,-1.0F	,1.0F	,-1.0F	,1.0F	,-1.0F,
-    //-1.0F	,1.0F	,-1.0F	,1.0F	,-1.0F	,1.0F	,-1.0F	,1.0F	,-1.0F	,-1.0F	,1.0F	,1.0F ,
-    //-1.0F	,-1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,-1.0F	,1.0F	,-1.0F	,-1.0F	,1.0F ,
-    //1.0F	,-1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,-1.0F	,1.0F	,-1.0F	,1.0F	,-1.0F,
-    //-1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,-1.0F	,1.0F	,1.0F ,
-    //-1.0F	,-1.0F	,-1.0F	,-1.0F	,1.0F	,1.0F	,1.0F	,1.0F	,-1.0F	,1.0F	,1.0F	,-1.0F
-    //};
-
 
     glGenVertexArrays(NUMBER_OF_VERTEX_ARRAY_OBJECTS, vertexArrayObject); // extracted
 	glBindVertexArray(vertexArrayObject[0]); //
@@ -484,46 +451,16 @@ void YasEngineGL::render(float deltaTime)
     modelViewLocation = glGetUniformLocation(shaderProgram, "mv_matrix");
     projectionLocation = glGetUniformLocation(shaderProgram, "proj_matrix");
 
-
 	aspect = static_cast<float>(windowWidth / windowHeight);
 
     perspectiveMatrix = buildPerspectiveMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
-
-    //std::cout << (int)&perspectiveMatrix.me11 << std::endl;
     
     viewMatrix = buildTranslationMatrixGLF(-cameraX, -cameraY, -cameraZ);
 
-    //viewMatrix;
-
     rotationStep = rotationStep+-1.75F*static_cast<float>(deltaTime);
 
-    //xStep = xStep * sin(0.35F*deltaTime)*2.0F;
-    //yStep = yStep * cos(0.52F*deltaTime)*2.0F;
-    //zStep = zStep * sin(0.7F*deltaTime)*2.0F;
-
     modelTranslationMatrix = buildTranslationMatrixGLF(1, 1, 1);
-//    translationMatrix = buildTranslationMatrixGLF(0.0F, 0.0F, 0.0F);
 
-    //                 1               2                                       3                              4
-    //-glm::translate(glm::mat4(1.0F), glm::vec3(sin(0.35F*currentTime)*2.0F, cos(0.52F*currentTime)*2.0F, sin(0.7F*currentTime)*2.0F));
-
-
- //   rMat = glm::rotate(glm::mat4(1.0f), 1.75f*(float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
-	//rMat = glm::rotate(rMat, 1.75f*(float)currentTime, glm::vec3(1.0f, 0.0f, 0.0f));
-	//rMat = glm::rotate(rMat, 1.75f*(float)currentTime, glm::vec3(0.0f, 0.0f, 1.0f));
-
-
-//              X               Y               Z
-//(const float& p, const float& y, const float& r)
-    ///   simple rotation //  rotationStep = rotationStep+-1.75F*static_cast<float>(deltaTime);
-    
-    //rotationStepAroundX +
-    //rotationStepAroundY +
-    //rotationStepAroundZ +
-
-    //rotationStepAroundX = sin(0.35F*deltaTime)*2.0F;
-    //rotationStepAroundY = cos(0.52F*deltaTime)*2.0F;
-    //rotationStepAroundZ = sin(0.7F*deltaTime)*2.0F;
     rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
 
 
@@ -531,30 +468,9 @@ void YasEngineGL::render(float deltaTime)
     
     normalizeVector(v3);
 
-    rotationModelMatrix = rotationAroundArbitraryAxies(v3, rotationStep);//->buildAllRotationMatrix(0, rotationStep, 0);
+    rotationModelMatrix = rotationAroundArbitraryAxies(v3, rotationStep);
 
-    ///////allRotationsMatrix = buildAllRotationMatrix(1.75f*(float)deltaTime,1.75f*(float)currentTime , 1.75f*(float)currentTime);
-
-
-    //rotationModelMatrix = buildRollMatrix(rotationStep); // it is not delta time only for time when I'm doing exercise from book
-        
-    // modelMatrix = glm::translate(glm::mat4(1.0F), glm::vec3(cubeLocationX, cubeLocationY, cubeLocationZ));
-    
-    
-    //rotationModelMatrix = glm::rotate(glm::mat4(1.0F), 1.75F*static_cast<float>(currentTime), glm::vec3(0.0F, 1.0F, 0.0F));
-    //rotationModelMatrix = glm::rotate(rotationModelMatrix, 1.75F*static_cast<float>(currentTime), glm::vec3(1.0F, 0.0F, 0.0F));
-
-    
-    ///rotationModelMatrix = buildRollMatrix(rotationStep); // it is not delta time only for time when I'm doing exercise from book
-
-    //rotationModelMatrix = glm::rotate(glm::mat4(1.0F), 1.75F*static_cast<float>(currentTime), glm::vec3(0.0F, 1.0F, 0.0F));
-    //rotationModelMatrix = glm::rotate(rotationModelMatrix, 1.75F*static_cast<float>(currentTime), glm::vec3(1.0F, 0.0F, 0.0F));
-    //rotationModelMatrix = glm::rotate(rotationModelMatrix, 1.75F*static_cast<float>(currentTime), glm::vec3(0.0F, 0.0F, 1.0F));
-
-   	//rMat = glm::rotate(rotationModelMatrix, 1.75f*(float)currentTime, glm::vec3(1.0f, 0.0f, 0.0f));
-	//rMat = glm::rotate(rMat, 1.75f*(float)currentTime, glm::vec3(0.0f, 0.0f, 1.0f));
-
-    modelMatrix = multiply(modelTranslationMatrix, rotationModelMatrix);// allRotationsMatrix); ///multiply(modelTranslationMatrix, rotationModelMatrix);
+    modelMatrix = multiply(modelTranslationMatrix, rotationModelMatrix);
 
     modelViewMatrix = multiply(viewMatrix, modelMatrix);
 

@@ -25,17 +25,3 @@
 
 //                                                                            80                                     120
 //-----------------------------------------------------------------------------|---------------------------------------|
-
-
-    
-//uint64_t _glfwPlatformGetTimerValue(void)
-//{
-//    if (_glfw.timer.win32.hasPC)
-//    {
-//        uint64_t value;
-//        QueryPerformanceCounter((LARGE_INTEGER*) &value);
-//        return value;
-//    }
-//    else
-//        return (uint64_t) timeGetTime();
-//}

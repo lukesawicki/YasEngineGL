@@ -139,8 +139,6 @@ class YasEngineGL
         Matrix4GLF modelTranslationMatrix;
         Matrix4GLF rotationModelMatrix;
 
-        //Matrix4GLF translationMatrix;
-
         GLuint renderingProgram;
 
         GLuint vertexArrayObject[NUMBER_OF_VERTEX_ARRAY_OBJECTS];
