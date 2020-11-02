@@ -9,17 +9,17 @@
         //isFrequencyOfThePerformanceCounterPickedUp = (QueryPerformanceFrequency((LARGE_INTEGER*)&frequency) != 0);
     }
 
-    float TimePicker::getSeconds()
+    double TimePicker::getSeconds()
     {
         if(isFrequencyOfThePerformanceCounterPickedUp)
         {
             LARGE_INTEGER ticks;
             QueryPerformanceCounter(&ticks);
-            return (float)(ticks.QuadPart / (double)frequency.QuadPart);
+            return (double)(ticks.QuadPart / (double)frequency.QuadPart);
         }
         else
         {
-            return GetTickCount64() / 1000.0F;
+            return GetTickCount64() / 1000.0;
         }
     }
 

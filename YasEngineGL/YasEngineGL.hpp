@@ -23,7 +23,7 @@ class YasEngineGL
         void destroy();
 
         void clear();
-        void render(float deltaTime);
+        void render(double deltaTime);
         void swapBuffers();
 
         void initShaders();
@@ -120,7 +120,7 @@ class YasEngineGL
         float rotationStepAroundY = 0.0F;
         float rotationStepAroundZ = 0.0F;
 
-        float rotationSpeedFactor = 0.25;
+        float rotationSpeedFactor = 0.95F;
 
         float xStep = 0.0F;
         float yStep = 0.0F;

@@ -442,7 +442,7 @@ void YasEngineGL::clear()
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void YasEngineGL::render(float deltaTime)
+void YasEngineGL::render(double deltaTime)
 {
     clear();
 
@@ -454,28 +454,42 @@ void YasEngineGL::render(float deltaTime)
 	aspect = static_cast<float>(windowWidth / windowHeight);
 
     perspectiveMatrix = buildPerspectiveMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
-    
-    viewMatrix = buildTranslationMatrixGLF(-cameraX, -cameraY, -cameraZ);
+    Vector3GLF cameraVector(-cameraX, -cameraY, -cameraZ);
+    //normalizeVector(cameraVector);
+    viewMatrix = buildTranslationMatrixRowMajorGLFloat(cameraVector);
+    //viewMatrix = buildTranslationMatrixColumnMajorGLFloat(cameraVector);
+    //transpose(viewMatrix);
+    Vector3GLF vectorModelTranslation(1.0F, 1.0F, 1.0F);
+    //vectorModelTranslation.x = 1;
+    //vectorModelTranslation.y = 1;
+    //vectorModelTranslation.z = 1;
 
-    rotationStep = rotationStep+-1.75F*static_cast<float>(deltaTime);
+    //////////    EKSPERYMENT
 
-    modelTranslationMatrix = buildTranslationMatrixGLF(1, 1, 1);
+    // normalizeVector(vectorModelTranslation);
 
-    rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
+    /////////
 
+    modelTranslationMatrix = buildTranslationMatrixRowMajorGLFloat(vectorModelTranslation);//1, 1, 1);
+
+    // 25.10.2020 23:03 rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
 
     Vector3GLF v3 = {0.0F, 1.0F, 0.0F};
     
-    normalizeVector(v3);
+    //normalizeVector(v3);
 
-    rotationModelMatrix = rotationAroundArbitraryAxies(v3, rotationStep);
+    // 25.10.2020 23:03 rotationModelMatrix = rotationAroundArbitraryAxies(v3, rotationStep);
+    rotationModelMatrix = rotationAroundArbitraryAxies(v3, 1.75*deltaTime);
 
-    modelMatrix = multiply(modelTranslationMatrix, rotationModelMatrix);
+    //buildAllRotationMatrix((const float& p, const float& y, const float& r, bool isTransposed = false)
 
-    modelViewMatrix = multiply(viewMatrix, modelMatrix);
+    modelMatrix = multiply(rotationModelMatrix, modelTranslationMatrix);
 
-	glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix.me11);
-	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &perspectiveMatrix.me11);
+    //modelViewMatrix = multiply(viewMatrix, modelMatrix);
+    modelViewMatrix = multiply(modelMatrix, viewMatrix);
+
+	glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix.me00);
+	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &perspectiveMatrix.me00);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject[0]);
 	glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
@@ -485,6 +499,7 @@ void YasEngineGL::render(float deltaTime)
 	glDepthFunc(GL_LEQUAL);
 
 	glDrawArrays(GL_TRIANGLES, 0, 36);
+    //gl_Position = proj_matrix * mv_matrix * vec4(position,1.0);
 }
 
 void YasEngineGL::swapBuffers()
@@ -513,7 +528,9 @@ void YasEngineGL::run(int nCmdShow)
     initShaders();
 
     // CUBE START
-    cameraX = 0.0f;
+    cameraX = 0.0f; // In the example in book here is 0.0F and I change it for tests and in the example from the book cube moved to left (correct)
+                    // but here cube is little rotated.
+
     cameraY = 0.0f;
     cameraZ = 8.0f;
 
@@ -526,11 +543,11 @@ void YasEngineGL::run(int nCmdShow)
 
     std::cout << "Windows and OpenGL context Prepared... starting rendering" << std::endl;
 
-    float time;
-    float newTime;
-    float deltaTime;
-    float fps;
-    float fpsTime;
+    double time;
+    double newTime;
+    double deltaTime;
+    double fps;
+    double fpsTime;
     unsigned int frames;
     MSG message;
 
@@ -550,12 +567,13 @@ void YasEngineGL::run(int nCmdShow)
         }
         else
         {
-            newTime = timePicker.getSeconds();
+            newTime = timePicker.getSeconds();  
             deltaTime = newTime - time;
             time = newTime;
         
             //std::cout << std::fixed << newTime << std::endl;
-            render(deltaTime);
+            // 25.10.2020 23:05 render(deltaTime);
+            render(newTime);
 		    swapBuffers();
 
             ++frames;

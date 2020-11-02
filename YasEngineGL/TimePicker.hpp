@@ -9,7 +9,7 @@ class TimePicker
 {
     public:
         TimePicker();
-        float getSeconds();
+        double getSeconds();
 
     private:
         LARGE_INTEGER frequency;
