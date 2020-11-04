@@ -122,6 +122,13 @@ class YasEngineGL
         float aspect;
 
         // Transformations data
+        float movingStep = 0.0F;
+        float movingStepX = 0.0F;
+        float movingStepY = 0.0F;
+        float movingStepZ = 0.0F;
+        float movingStepFactorX = 0.35F;
+        float movingStepFactorY = 0.52F;
+        float movingStepFactorZ = 0.7F;
         float rotationStep = 0.0F;
         float rotationStepAroundX = 0.0F;
         float rotationStepAroundY = 0.0F;

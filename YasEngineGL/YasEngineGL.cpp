@@ -467,7 +467,15 @@ void YasEngineGL::render(double deltaTime)
     viewMatrix = buildTranslationMatrixRowMajorGLFloat(cameraVector);
     //viewMatrix = buildTranslationMatrixColumnMajorGLFloat(cameraVector);
     //transpose(viewMatrix);
-    Vector3GLF vectorModelTranslation(1.0F, 1.0F, 1.0F);
+    // 04.11.2020 Vector3GLF vectorModelTranslation(1.0F, 1.0F, 1.0F);
+
+    
+    movingStepX = movingStepX + movingStepFactorX*deltaTime;
+    movingStepY = movingStepY + movingStepFactorY*deltaTime;
+    movingStepZ = movingStepZ + movingStepFactorZ*deltaTime;
+    //Vector3GLF vectorModelTranslation(sin(0.35F*deltaTime)*2.0F, cos(0.52F*deltaTime)*2.0F, sin(0.7F*deltaTime)*2.0F);
+    Vector3GLF vectorModelTranslation(sin(movingStepX)*2.0F, cos(movingStepY)*2.0F, sin(movingStepZ)*2.0F);
+    
     //vectorModelTranslation.x = 1;
     //vectorModelTranslation.y = 1;
     //vectorModelTranslation.z = 1;
@@ -481,6 +489,7 @@ void YasEngineGL::render(double deltaTime)
     modelTranslationMatrix = buildTranslationMatrixRowMajorGLFloat(vectorModelTranslation);//1, 1, 1);
 
     rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
+    //rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
 
     Vector3GLF v3 = {0.0F, 1.0F, 0.0F};
     
