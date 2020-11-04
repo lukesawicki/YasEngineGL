@@ -10,26 +10,18 @@
 
 
 struct Vector3GLF {
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-    Vector3GLF(float x, float y, float z)
+    GLfloat vc0;
+    GLfloat vc1;
+    GLfloat vc2;
+    Vector3GLF(float vc0, float vc1, float vc2)
     {
-        this->x = x;
-        this->y = y;
-        this->z = z;
+        this->vc0 = vc0;
+        this->vc1 = vc1;
+        this->vc2 = vc2;
     }
-} typedef Vector3F, Vec3F;
-
-struct Vector4GLF {
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-    GLfloat w;
-} typedef Vector4F, Vec4F;
+} typedef Vector3F, Vec3GLF;
 
 struct Matrix4GLF {
-    // Naming: me - matrix entry
     GLfloat me00=1.0F, me01=0.0F, me02=0.0F, me03=0.0F;
     GLfloat me10=0.0F, me11=1.0F, me12=0.0F, me13=0.0F;
     GLfloat me20=0.0F, me21=0.0F, me22=1.0F, me23=0.0F;
@@ -37,7 +29,6 @@ struct Matrix4GLF {
 
 } typedef Mat4GLF;
 
-static void transpose(Matrix4GLF &mat);
 static void normalizeVector(Vector3GLF& vector);
 static GLfloat getVectorMagnitude(const Vector3GLF& vector);
 
@@ -52,8 +43,11 @@ static Matrix4GLF multiply(const Matrix4GLF& a,const Matrix4GLF& b)
     return mat;
 }
 
+//OpenGL Right Handed Coordination System and thata are
+// In OpenGL default matrices order are column-major(column vectors);
+// from OpenGL 4.x you can change that and this matrix below is row-major
 // IN GLM IT IS (GLM_DEPTH_CLIP_SPACE == GLM_DEPTH_ZERO_ONE) == false
-static Matrix4GLF buildPerspectiveMatrixGLF(const float& fieldOfViewY, const float& aspectRatio, const float& zNearPlane, const float& zFarPlane, bool isTransposed = false)
+static Matrix4GLF buildPerspectiveMatrixGLF(const float& fieldOfViewY, const float& aspectRatio, const float& zNearPlane, const float& zFarPlane)
 {
     Matrix4GLF mat = {
         static_cast<GLfloat>(1.0F / ((tan(fieldOfViewY/2.0F)) * aspectRatio)), 0.0F,                                                    0.0F,                                                                                0.0F,  //0
@@ -61,24 +55,6 @@ static Matrix4GLF buildPerspectiveMatrixGLF(const float& fieldOfViewY, const flo
         0.0F,                                                                  0.0F,                                                    static_cast<GLfloat>( - (zFarPlane + zNearPlane)/( zFarPlane - zNearPlane) ),        -1.0F, //2
         0.0F,                                                                  0.0F,                                                    static_cast<GLfloat>(- (2 * zFarPlane * zNearPlane) / (zFarPlane - zNearPlane) ),    0.0F   //3
     };
-    
-    if(isTransposed)
-    {
-        transpose(mat);
-    }
-
-    return mat;
-}
-
-static Matrix4GLF buildTranslationMatrixRowMajorGLFloat(const GLfloat& x, const GLfloat& y, const GLfloat&  z)
-{
-    Matrix4GLF mat = {
-        mat.me00 = 1.0F, mat.me01 = 0.0F, mat.me02 = 0.0F, mat.me03 = 0.0F,
-        mat.me10 = 0.0F, mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = 0.0F,
-        mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = 0.0F,
-        mat.me30 = x,    mat.me31 = y,    mat.me32 = z,    mat.me33 = 1.0F
-    };
-
     return mat;
 }
 
@@ -88,153 +64,180 @@ static Matrix4GLF buildTranslationMatrixRowMajorGLFloat(const Vector3GLF& vector
         mat.me00 = 1.0F, mat.me01 = 0.0F, mat.me02 = 0.0F, mat.me03 = 0.0F,
         mat.me10 = 0.0F, mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = 0.0F,
         mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = 0.0F,
-        mat.me30 = vector.x,    mat.me31 = vector.y,    mat.me32 = vector.z,    mat.me33 = 1.0F
+        mat.me30 = vector.vc0,    mat.me31 = vector.vc1,    mat.me32 = vector.vc2,    mat.me33 = 1.0F
     };
 
-    return mat;
-}
-
-static Matrix4GLF buildTranslationMatrixColumnMajorGLFloat(const GLfloat& x, const GLfloat& y, const GLfloat&  z)
-{
-    Matrix4GLF mat = {
-        mat.me00 = 1.0F, mat.me01 = 0.0F, mat.me02 = 0.0F, mat.me03 = x,
-        mat.me10 = 0.0F, mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = y,
-        mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = z,
-        mat.me30 = 0.0F, mat.me31 = 0.0F, mat.me32 = 0.0,  mat.me33 = 1.0F
-    };
-    
-    return mat;
-}
-
-static Matrix4GLF buildTranslationMatrixColumnMajorGLFloat(const Vector3GLF& vector)
-{
-    Matrix4GLF mat = {
-        mat.me00 = 1.0F, mat.me01 = 0.0F, mat.me02 = 0.0F, mat.me03 = vector.x,
-        mat.me10 = 0.0F, mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = vector.y,
-        mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = vector.z,
-        mat.me30 = 0.0F, mat.me31 = 0.0F, mat.me32 = 0.0,  mat.me33 = 1.0F
-    };
-    
     return mat;
 }
 
 GLfloat getVectorMagnitude(const Vector3GLF& vector)
 {
-    return sqrt(pow(vector.x, 2) + pow(vector.y, 2) + pow(vector.z, 2));
+    return sqrt(pow(vector.vc0, 2) + pow(vector.vc1, 2) + pow(vector.vc2, 2));
 }
 
 void normalizeVector(Vector3GLF& vector)
 {
     GLfloat vectorMagnitude = getVectorMagnitude(vector);
-    vector.x = vector.x / vectorMagnitude;
-    vector.y = vector.y / vectorMagnitude;
-    vector.z = vector.z / vectorMagnitude;
+    vector.vc0 = vector.vc0 / vectorMagnitude;
+    vector.vc1 = vector.vc1 / vectorMagnitude;
+    vector.vc2 = vector.vc2 / vectorMagnitude;
 }
 
- // Rotate around X axis
-static Matrix4GLF buildPitchMatrix(const float& rad)
+static Matrix4GLF buildAllRotationMatrix(const float& p, const float& vc1, const float& r)
 {
     Matrix4GLF mat = {
-        mat.me00 = 1.0F, mat.me01 = 0.0F,     mat.me02 = 0.0F,      mat.me03 = 0.0F,
-        mat.me10 = 0.0F, mat.me11 = cos(rad), mat.me12 = -sin(rad), mat.me13 = 0.0F,
-        mat.me20 = 0.0F, mat.me21 = sin(rad), mat.me22 = cos(rad),  mat.me23 = 0.0F,
-        mat.me30 = 0.0F, mat.me31 = 0.0F,     mat.me32 = 0.0F,      mat.me33 = 1.0F,
-    };
-    return mat;
-}
-
-// Rotate around Y axis
-static Matrix4GLF buildYawMatrix(const float& rad)
-{
-    Matrix4GLF mat = {
-        mat.me00 = cos(rad),  mat.me01 = 0.0F, mat.me02 = sin(rad), mat.me03 = 0.0F,
-        mat.me10 = 0.0F,      mat.me11 = 1.0F, mat.me12 = 0.0F,     mat.me13 = 0.0F,
-        mat.me20 = -sin(rad), mat.me21 = 0.0F, mat.me22 = cos(rad), mat.me23 = 0.0F,
-        mat.me30 = 0.0F,      mat.me31 = 0.0F, mat.me32 = 0.0F,     mat.me33 = 1.0F,
-    };
-    return mat;
-}
-
-// Rotate around Z axis
-static Matrix4GLF buildRollMatrix(const float& rad)
-{
-    Matrix4GLF mat = {
-        mat.me00 = cos(rad), mat.me01 = -sin(rad), mat.me02 = 0.0F, mat.me03 = 0.0F,
-        mat.me10 = sin(rad), mat.me11 = cos(rad),  mat.me12 = 0.0F, mat.me13 = 0.0F,
-        mat.me20 = 0.0F,     mat.me21 = 0.0F,      mat.me22 = 1.0F, mat.me23 = 0.0F,
-        mat.me30 = 0.0F,     mat.me31 = 0.0F,      mat.me32 = 0.0F, mat.me33 = 1.0F,
-    };
-    return mat;
-}
-
-static Matrix4GLF buildAllRotationMatrix(const float& p, const float& y, const float& r, bool isTransposed = false)
-{
-    Matrix4GLF mat = {
-        mat.me00 = cos(r)*cos(y),                        mat.me01 = sin(r)*cos(y),                             mat.me02 = sin(y),         mat.me03 = 0.0F,
-        mat.me10 = sin(r)*cos(p) + cos(r)*sin(y)*sin(p), mat.me11 = cos(r)*cos(p) -(sin(r)*sin(y)*sin(p)),     mat.me12 = -sin(p)*cos(y), mat.me13 = 0.0F,
-        mat.me20 = sin(r)*sin(p) - cos(r)*sin(y)*cos(p), mat.me21 = cos(r)*sin(p) + sin(r)*sin(y)*cos(p),      mat.me22 = cos(y)*cos(p),  mat.me23 = 0.0F,
+        mat.me00 = cos(r)*cos(vc1),                        mat.me01 = sin(r)*cos(vc1),                             mat.me02 = sin(vc1),         mat.me03 = 0.0F,
+        mat.me10 = sin(r)*cos(p) + cos(r)*sin(vc1)*sin(p), mat.me11 = cos(r)*cos(p) -(sin(r)*sin(vc1)*sin(p)),     mat.me12 = -sin(p)*cos(vc1), mat.me13 = 0.0F,
+        mat.me20 = sin(r)*sin(p) - cos(r)*sin(vc1)*cos(p), mat.me21 = cos(r)*sin(p) + sin(r)*sin(vc1)*cos(p),      mat.me22 = cos(vc1)*cos(p),  mat.me23 = 0.0F,
         mat.me30 = 0.0F,                                 mat.me31 = 0.0F,                                      mat.me32 = 0.0F,           mat.me33 = 1.0F,
     };
 
-    //if(isTransposed)
-    //{
-    //    transpose(mat);
-    //}
-
     return mat;
 }
 
-static Matrix4GLF rotationAroundArbitraryAxies(Vector3GLF axisVector, const float& angle, bool isTransposed = false)
+static Matrix4GLF rotationAroundArbitraryAxies(Vector3GLF axisVector, const float& angle)
 {
     float c = cos(angle);
     float s = sin(angle);
     
     normalizeVector(axisVector);
 
-        Matrix4GLF mat = {
-    mat.me00 = c+((1.0F - c)*axisVector.x)* axisVector.x,             mat.me01 = ((1.0F-c)*axisVector.x)*axisVector.y + s*axisVector.z, mat.me02 = ((1.0F-c)*axisVector.x)*axisVector.z - s*axisVector.y, mat.me03 = 0.0F,
-    mat.me10 = ((1.0F-c)*axisVector.y)*axisVector.x - s*axisVector.z, mat.me11 = c+((1.0F - c)*axisVector.y)*axisVector.y,              mat.me12 = ((1.0F-c)*axisVector.y)*axisVector.z + s*axisVector.x, mat.me13 = 0.0F,
-    mat.me20 = ((1.0F-c)*axisVector.z)*axisVector.x + s*axisVector.y,   mat.me21 = ((1.0F-c)*axisVector.z)*axisVector.y - s*axisVector.x,   mat.me22 = c+((1.0F - c)*axisVector.z)*axisVector.z,                           mat.me23 = 0.0F,
-    mat.me30 = 0.0F,                                                            mat.me31 = 0.0F,                                                            mat.me32 = 0.0F,                                                            mat.me33 = 1.0F,
+    Matrix4GLF mat =
+    {
+        mat.me00 = c+((1.0F - c)*axisVector.vc0)* axisVector.vc0,               mat.me01 = ((1.0F-c)*axisVector.vc0)*axisVector.vc1 + s*axisVector.vc2, mat.me02 = ((1.0F-c)*axisVector.vc0)*axisVector.vc2 - s*axisVector.vc1, mat.me03 = 0.0F,
+        mat.me10 = ((1.0F-c)*axisVector.vc1)*axisVector.vc0 - s*axisVector.vc2, mat.me11 = c+((1.0F - c)*axisVector.vc1)*axisVector.vc1,                mat.me12 = ((1.0F-c)*axisVector.vc1)*axisVector.vc2 + s*axisVector.vc0, mat.me13 = 0.0F,
+        mat.me20 = ((1.0F-c)*axisVector.vc2)*axisVector.vc0 + s*axisVector.vc1, mat.me21 = ((1.0F-c)*axisVector.vc2)*axisVector.vc1 - s*axisVector.vc0, mat.me22 = c+((1.0F - c)*axisVector.vc2)*axisVector.vc2,                mat.me23 = 0.0F,
+        mat.me30 = 0.0F,                                                        mat.me31 = 0.0F,                                                        mat.me32 = 0.0F,                                                        mat.me33 = 1.0F,
     };
 
-    //if(isTransposed)
-    //{
-    //    transpose(mat);
-    //}
-
     return mat;
-}
-
-//Scale
-static Matrix4GLF buildScaleMatrix(const float& x, const float& y, const float& z)
-{
-    Matrix4GLF mat = {
-        mat.me00 = x,    mat.me01 = 0.0F, mat.me01 = 0.0F, mat.me01 = 0.0F,
-        mat.me10 = 0.0F, mat.me11 = y,    mat.me11 = 0.0F, mat.me11 = 0.0F,
-        mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me21 = z,    mat.me21 = 0.0F,
-        mat.me30 = 0.0F, mat.me31 = 0.0F, mat.me31 = 0.0F, mat.me31 = 1.0F,
-    };
-    return mat;
-}
-
-//Transpose
-static void transpose(Matrix4GLF &mat)
-{
-    Matrix4GLF matCopy;
-
-    matCopy.me00=mat.me00; matCopy.me10=mat.me10; matCopy.me20=mat.me20; matCopy.me30=mat.me30;
-    matCopy.me10=mat.me01; matCopy.me11=mat.me11; matCopy.me21=mat.me21; matCopy.me31=mat.me31;
-    matCopy.me20=mat.me02; matCopy.me12=mat.me12; matCopy.me22=mat.me22; matCopy.me32=mat.me32;
-    matCopy.me30=mat.me03; matCopy.me13=mat.me13; matCopy.me23=mat.me23; matCopy.me33=mat.me33;
-
-    mat.me00=matCopy.me00; mat.me01=matCopy.me10; mat.me02=matCopy.me20; mat.me03=matCopy.me30;
-    mat.me10=matCopy.me01; mat.me11=matCopy.me11; mat.me12=matCopy.me21; mat.me13=matCopy.me31;
-    mat.me20=matCopy.me02; mat.me21=matCopy.me12; mat.me22=matCopy.me22; mat.me23=matCopy.me32;
-    mat.me30=matCopy.me03; mat.me31=matCopy.me13; mat.me32=matCopy.me23; mat.me33=matCopy.me33;
 }
 
 #endif YASMATHLIB_HPP
+
+//                                                                            80                                     120
+//-----------------------------------------------------------------------------|---------------------------------------|
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//---------------------------------------Temporary notes and code fragments---------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+//struct Vector4GLF {
+//    GLfloat vc0;
+//    GLfloat vc1;
+//    GLfloat vc2;
+//    GLfloat vc3;
+//    Vector4GLF(float vc0, float vc1, float vc2, float vc3)
+//    {
+//        this->vc0 = vc0;
+//        this->vc1 = vc1;
+//        this->vc2 = vc2;
+//        this->vc3 = vc3;
+//    }
+//} typedef Vector4GLF, Vec4GLF;
+
+//static Matrix4GLF buildTranslationMatrixRowMajorGLFloat(const GLfloat& vc0, const GLfloat& vc1, const GLfloat&  vc2)
+//{
+//    Matrix4GLF mat = {
+//        mat.me00 = 1.0F, mat.me01 = 0.0F, mat.me02 = 0.0F, mat.me03 = 0.0F,
+//        mat.me10 = 0.0F, mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = 0.0F,
+//        mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = 0.0F,
+//        mat.me30 = vc0,    mat.me31 = vc1,    mat.me32 = vc2,    mat.me33 = 1.0F
+//    };
+//
+//    return mat;
+//}
+
+//static Matrix4GLF buildTranslationMatrixColumnMajorGLFloat(const GLfloat& vc0, const GLfloat& vc1, const GLfloat&  vc2)
+//{
+//    Matrix4GLF mat = {
+//        mat.me00 = 1.0F, mat.me01 = 0.0F, mat.me02 = 0.0F, mat.me03 = vc0,
+//        mat.me10 = 0.0F, mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = vc1,
+//        mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = vc2,
+//        mat.me30 = 0.0F, mat.me31 = 0.0F, mat.me32 = 0.0,  mat.me33 = 1.0F
+//    };
+//    
+//    return mat;
+//}
+//
+//static Matrix4GLF buildTranslationMatrixColumnMajorGLFloat(const Vector3GLF& vector)
+//{
+//    Matrix4GLF mat = {
+//        mat.me00 = 1.0F, mat.me01 = 0.0F, mat.me02 = 0.0F, mat.me03 = vector.vc0,
+//        mat.me10 = 0.0F, mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = vector.vc1,
+//        mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = vector.vc2,
+//        mat.me30 = 0.0F, mat.me31 = 0.0F, mat.me32 = 0.0,  mat.me33 = 1.0F
+//    };
+//    
+//    return mat;
+//}
+
+//static void transpose(Matrix4GLF &mat);
+//static void transpose(Matrix4GLF &mat)
+//{
+//    Matrix4GLF matCopy;
+//
+//    matCopy.me00=mat.me00; matCopy.me10=mat.me10; matCopy.me20=mat.me20; matCopy.me30=mat.me30;
+//    matCopy.me10=mat.me01; matCopy.me11=mat.me11; matCopy.me21=mat.me21; matCopy.me31=mat.me31;
+//    matCopy.me20=mat.me02; matCopy.me12=mat.me12; matCopy.me22=mat.me22; matCopy.me32=mat.me32;
+//    matCopy.me30=mat.me03; matCopy.me13=mat.me13; matCopy.me23=mat.me23; matCopy.me33=mat.me33;
+//
+//    mat.me00=matCopy.me00; mat.me01=matCopy.me10; mat.me02=matCopy.me20; mat.me03=matCopy.me30;
+//    mat.me10=matCopy.me01; mat.me11=matCopy.me11; mat.me12=matCopy.me21; mat.me13=matCopy.me31;
+//    mat.me20=matCopy.me02; mat.me21=matCopy.me12; mat.me22=matCopy.me22; mat.me23=matCopy.me32;
+//    mat.me30=matCopy.me03; mat.me31=matCopy.me13; mat.me32=matCopy.me23; mat.me33=matCopy.me33;
+//}
+
+//// Rotate around X axis
+//static Matrix4GLF buildPitchMatrix(const float& rad)
+//{
+//    Matrix4GLF mat = {
+//        mat.me00 = 1.0F, mat.me01 = 0.0F,     mat.me02 = 0.0F,      mat.me03 = 0.0F,
+//        mat.me10 = 0.0F, mat.me11 = cos(rad), mat.me12 = -sin(rad), mat.me13 = 0.0F,
+//        mat.me20 = 0.0F, mat.me21 = sin(rad), mat.me22 = cos(rad),  mat.me23 = 0.0F,
+//        mat.me30 = 0.0F, mat.me31 = 0.0F,     mat.me32 = 0.0F,      mat.me33 = 1.0F,
+//    };
+//    return mat;
+//}
+//
+//// Rotate around Y axis
+//static Matrix4GLF buildYawMatrix(const float& rad)
+//{
+//    Matrix4GLF mat = {
+//        mat.me00 = cos(rad),  mat.me01 = 0.0F, mat.me02 = sin(rad), mat.me03 = 0.0F,
+//        mat.me10 = 0.0F,      mat.me11 = 1.0F, mat.me12 = 0.0F,     mat.me13 = 0.0F,
+//        mat.me20 = -sin(rad), mat.me21 = 0.0F, mat.me22 = cos(rad), mat.me23 = 0.0F,
+//        mat.me30 = 0.0F,      mat.me31 = 0.0F, mat.me32 = 0.0F,     mat.me33 = 1.0F,
+//    };
+//    return mat;
+//}
+//
+//// Rotate around Z axis
+//static Matrix4GLF buildRollMatrix(const float& rad)
+//{
+//    Matrix4GLF mat = {
+//        mat.me00 = cos(rad), mat.me01 = -sin(rad), mat.me02 = 0.0F, mat.me03 = 0.0F,
+//        mat.me10 = sin(rad), mat.me11 = cos(rad),  mat.me12 = 0.0F, mat.me13 = 0.0F,
+//        mat.me20 = 0.0F,     mat.me21 = 0.0F,      mat.me22 = 1.0F, mat.me23 = 0.0F,
+//        mat.me30 = 0.0F,     mat.me31 = 0.0F,      mat.me32 = 0.0F, mat.me33 = 1.0F,
+//    };
+//    return mat;
+//}
+
+////Scale
+//static Matrix4GLF buildScaleMatrix(const float& vc0, const float& vc1, const float& vc2)
+//{
+//    Matrix4GLF mat =
+//    {
+//        mat.me00 = vc0,  mat.me01 = 0.0F, mat.me01 = 0.0F, mat.me01 = 0.0F,
+//        mat.me10 = 0.0F, mat.me11 = vc1,  mat.me11 = 0.0F, mat.me11 = 0.0F,
+//        mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me21 = vc2,  mat.me21 = 0.0F,
+//        mat.me30 = 0.0F, mat.me31 = 0.0F, mat.me31 = 0.0F, mat.me31 = 1.0F,
+//    };
+//
+//    return mat;
+//}
 
 // Right handed
 
@@ -250,6 +253,10 @@ static void transpose(Matrix4GLF &mat)
 
 // Column major
 
+
+//----------------------------------------------------------------------------------------------------------------------
+//---------------------------------------End of temporary notes and code fragments--------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 //                                                                            80                                     120
 //-----------------------------------------------------------------------------|---------------------------------------|

@@ -354,6 +354,14 @@ void YasEngineGL::prepareWindow(int nCmdShow)
 		exit(EXIT_FAILURE);
 	}
 
+    openGlVendor = (char*)glGetString(GL_VENDOR);
+    openGlVersion = (char*)glGetString(GL_VERSION);
+    openGlRenderer = (char*)glGetString(GL_RENDERER);
+
+    std::cout << "OpenGL vendor: " << openGlVendor << std::endl;
+    std::cout << "OpenGL version: " << openGlVersion << std::endl;
+    std::cout << "OpenGL renderer: " << openGlRenderer << std::endl;
+
 	SetWindowText(windowHandle, reinterpret_cast<LPCSTR>(glGetString(GL_VERSION)));
 	ShowWindow(windowHandle, nCmdShow);
 
@@ -472,14 +480,15 @@ void YasEngineGL::render(double deltaTime)
 
     modelTranslationMatrix = buildTranslationMatrixRowMajorGLFloat(vectorModelTranslation);//1, 1, 1);
 
-    // 25.10.2020 23:03 rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
+    rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
 
     Vector3GLF v3 = {0.0F, 1.0F, 0.0F};
     
     //normalizeVector(v3);
 
     // 25.10.2020 23:03 rotationModelMatrix = rotationAroundArbitraryAxies(v3, rotationStep);
-    rotationModelMatrix = rotationAroundArbitraryAxies(v3, 1.75*deltaTime);
+    //rotationModelMatrix = rotationAroundArbitraryAxies(v3, 1.75F*deltaTime);
+    rotationModelMatrix = rotationAroundArbitraryAxies(v3, rotationStep);
 
     //buildAllRotationMatrix((const float& p, const float& y, const float& r, bool isTransposed = false)
 
@@ -572,8 +581,8 @@ void YasEngineGL::run(int nCmdShow)
             time = newTime;
         
             //std::cout << std::fixed << newTime << std::endl;
-            // 25.10.2020 23:05 render(deltaTime);
-            render(newTime);
+            render(deltaTime);
+            //render(newTime);
 		    swapBuffers();
 
             ++frames;

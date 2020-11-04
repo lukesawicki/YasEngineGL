@@ -17,46 +17,32 @@
 class YasEngineGL
 {
     public:
-        YasEngineGL(HINSTANCE hInstance);
-        void prepareWindow(int nCmdShow);
-        void run(int nCmdShow);
-        void destroy();
+                    YasEngineGL(HINSTANCE hInstance);
+        void        prepareWindow(int nCmdShow);
+        void        run(int nCmdShow);
+        void        destroy();
 
-        void clear();
-        void render(double deltaTime);
-        void swapBuffers();
+        void        clear();
+        void        render(double deltaTime);
+        void        swapBuffers();
 
-        void initShaders();
+        void        initShaders();
         std::string loadShaderCode(std::string fileName);
-        GLuint createShaderProgram();
+        // GLuint - shorthand for “unsigned int”, provided by OpenGL.
+        GLuint      createShaderProgram();
  
     private:
         //WinAPI
 
-        static LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-        ATOM registerWindowClass(HINSTANCE hInstance);
+        static      LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+        ATOM        registerWindowClass(HINSTANCE hInstance);
         
         HINSTANCE applicationHandle;
-        HWND windowHandle;
-        LPTSTR windowClassName;
-        DWORD style;
-        HDC	deviceContext;
-        HGLRC renderingContext;
-
-        
-        //OpenGL
-        void extractFunctionsPointers();
-        void printShaderLog(GLuint shader);
-        void printProgramLog(int prog);
-        bool checkOpenGLError();
-        
-        // GLuint - shorthand for “unsigned int”, provided by OpenGL.
-        GLuint shaderProgram;
-        GLuint vertexArrayObjectIds[1];
-
-        static std::string engineName;
-        static std::string applicationName;
-        static std::string shadersPath;
+        HWND      windowHandle;
+        LPTSTR    windowClassName;
+        DWORD     style;
+        HDC       deviceContext;
+        HGLRC     renderingContext;
 
         int windowXposition;
         int windowYposition;
@@ -64,6 +50,33 @@ class YasEngineGL
         int windowHeight;
 
 		bool windowed;
+
+        // Engine specific variables:
+        static std::string engineName;
+        static std::string applicationName;
+        static std::string shadersPath;
+        
+        //OpenGL
+        void extractFunctionsPointers();
+        void printShaderLog(GLuint shader);
+        void printProgramLog(int prog);
+        bool checkOpenGLError();
+        void setupVertices();
+
+        char* openGlVersion;
+        char* openGlVendor;
+        char* openGlRenderer;
+        
+        static const int NUMBER_OF_VERTEX_ARRAY_OBJECTS = 1;
+        static const int NUMBER_OF_VERTEX_BUFFER_OBJECTS = 2;
+
+        GLuint shaderProgram;
+        GLuint vertexArrayObjectIds[1];
+
+        GLuint renderingProgram;
+
+        GLuint vertexArrayObject[NUMBER_OF_VERTEX_ARRAY_OBJECTS];
+        GLuint vertexBufferObject[NUMBER_OF_VERTEX_BUFFER_OBJECTS];
 
         // OpenGL and extension function pointers:
 
@@ -89,21 +102,14 @@ class YasEngineGL
         PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
         PFNGLPROGRAMUNIFORM1FEXTPROC glProgramUniform1f;
 
-        // NEW ONES
-        ////////////////
         PFNGLGENBUFFERSPROC glGenBuffers;
         PFNGLBINDBUFFERPROC glBindBuffer;
         PFNGLBUFFERDATAPROC glBufferData;
         PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
         PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
         PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
-        ////////////////
-        // END NEW ONES
 
         // CUBE EXAMPLE START
-
-        static const int NUMBER_OF_VERTEX_ARRAY_OBJECTS = 1;
-        static const int NUMBER_OF_VERTEX_BUFFER_OBJECTS = 2;
 
         float cameraX;
         float cameraY;
@@ -115,6 +121,7 @@ class YasEngineGL
 
         float aspect;
 
+        // Transformations data
         float rotationStep = 0.0F;
         float rotationStepAroundX = 0.0F;
         float rotationStepAroundY = 0.0F;
@@ -139,15 +146,8 @@ class YasEngineGL
         Matrix4GLF modelTranslationMatrix;
         Matrix4GLF rotationModelMatrix;
 
-        GLuint renderingProgram;
-
-        GLuint vertexArrayObject[NUMBER_OF_VERTEX_ARRAY_OBJECTS];
-        GLuint vertexBufferObject[NUMBER_OF_VERTEX_BUFFER_OBJECTS];
-
         GLuint modelViewLocation;
         GLuint projectionLocation;
-
-        void setupVertices();
 };
 
 #endif
