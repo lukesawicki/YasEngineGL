@@ -491,13 +491,19 @@ void YasEngineGL::render(double deltaTime)
     rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
     //rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
 
-    Vector3GLF v3 = {0.0F, 1.0F, 0.0F};
+    Vector3GLF justX = {1.0F, 0.0F, 0.0F};
+    Vector3GLF justY = {0.0F, 1.0F, 0.0F};
+    Vector3GLF justZ = {0.0F, 0.0F, 1.0F};
     
     //normalizeVector(v3);
 
     // 25.10.2020 23:03 rotationModelMatrix = rotationAroundArbitraryAxies(v3, rotationStep);
     //rotationModelMatrix = rotationAroundArbitraryAxies(v3, 1.75F*deltaTime);
-    rotationModelMatrix = rotationAroundArbitraryAxies(v3, rotationStep);
+    
+    // 04.11.2020 2330 rotationModelMatrix = rotationAroundArbitraryAxies(v3, rotationStep);
+    rotationModelMatrix = rotationAroundArbitraryAxies(justX, rotationStep);
+    rotationModelMatrix = multiply(rotationModelMatrix, rotationAroundArbitraryAxies(justY, rotationStep));
+    rotationModelMatrix = multiply(rotationModelMatrix, rotationAroundArbitraryAxies(justZ, rotationStep));
 
     //buildAllRotationMatrix((const float& p, const float& y, const float& r, bool isTransposed = false)
 
