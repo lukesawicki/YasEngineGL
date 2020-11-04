@@ -48,18 +48,11 @@ void YasEngineGL::extractFunctionsPointers()
     glProgramUniform1f = reinterpret_cast<PFNGLPROGRAMUNIFORM1FEXTPROC>(wglGetProcAddress("glProgramUniform1f"));
 
     // New ones
-    //glBindVertexArray = reinterpret_cast<PFNGLBINDVERTEXARRAYPROC>(wglGetProcAddress("glBindVertexArray"));
-
     glGenBuffers = reinterpret_cast<PFNGLGENBUFFERSPROC>(wglGetProcAddress("glGenBuffers"));
-
     glBindBuffer = reinterpret_cast<PFNGLBINDBUFFERPROC>(wglGetProcAddress("glBindBuffer"));
-
     glBufferData = reinterpret_cast<PFNGLBUFFERDATAPROC>(wglGetProcAddress("glBufferData"));
-
     glUniformMatrix4fv = reinterpret_cast<PFNGLUNIFORMMATRIX4FVPROC>(wglGetProcAddress("glUniformMatrix4fv"));
-
     glVertexAttribPointer = reinterpret_cast<PFNGLVERTEXATTRIBPOINTERPROC>(wglGetProcAddress("glVertexAttribPointer"));
-
     glEnableVertexAttribArray = reinterpret_cast<PFNGLENABLEVERTEXATTRIBARRAYPROC>(wglGetProcAddress("glEnableVertexAttribArray"));
     // End new ones
 }
@@ -87,8 +80,6 @@ YasEngineGL::YasEngineGL(HINSTANCE hInstance)
     // fropen_s open existing file with another name
 	freopen_s(&file, "CON", "w", stdout);
 	freopen_s(&file, "CON", "w", stderr);
-
-    //std::string YasEngineGL::engineName = "YasEngine";
     
     std::string consoleTitle = engineName + " logging window";
 
@@ -96,8 +87,6 @@ YasEngineGL::YasEngineGL(HINSTANCE hInstance)
     std::cout.clear();
 
     applicationHandle = hInstance;
-
-    //buildTranslationMatrix(2.0F, 2.0F, 2.0F);
 }
 
 std::string YasEngineGL::loadShaderCode(std::string fileName)
@@ -109,11 +98,8 @@ std::string YasEngineGL::loadShaderCode(std::string fileName)
     std::string shaderCode;
     while (std::getline(shaderCodeFile, line))
     {
-        //std::cout << "Line: " << line << std::endl;
-        shaderCode.append(line + "\n");//.append("\n");
-        //shaderCode.append(line);//.append("\n");
+        shaderCode.append(line + "\n");
     }
-    //std::cout << "Loaded code: " << shaderCode << std::endl;
     shaderCodeFile.close();
     return shaderCode;
 }
@@ -463,53 +449,25 @@ void YasEngineGL::render(double deltaTime)
 
     perspectiveMatrix = buildPerspectiveMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
     Vector3GLF cameraVector(-cameraX, -cameraY, -cameraZ);
-    //normalizeVector(cameraVector);
-    viewMatrix = buildTranslationMatrixRowMajorGLFloat(cameraVector);
-    //viewMatrix = buildTranslationMatrixColumnMajorGLFloat(cameraVector);
-    //transpose(viewMatrix);
-    // 04.11.2020 Vector3GLF vectorModelTranslation(1.0F, 1.0F, 1.0F);
 
-    
+    viewMatrix = buildTranslationMatrixRowMajorGLFloat(cameraVector);
+
     movingStepX = movingStepX + movingStepFactorX*deltaTime;
     movingStepY = movingStepY + movingStepFactorY*deltaTime;
     movingStepZ = movingStepZ + movingStepFactorZ*deltaTime;
-    //Vector3GLF vectorModelTranslation(sin(0.35F*deltaTime)*2.0F, cos(0.52F*deltaTime)*2.0F, sin(0.7F*deltaTime)*2.0F);
     Vector3GLF vectorModelTranslation(sin(movingStepX)*2.0F, cos(movingStepY)*2.0F, sin(movingStepZ)*2.0F);
-    
-    //vectorModelTranslation.x = 1;
-    //vectorModelTranslation.y = 1;
-    //vectorModelTranslation.z = 1;
-
-    //////////    EKSPERYMENT
-
-    // normalizeVector(vectorModelTranslation);
-
-    /////////
 
     modelTranslationMatrix = buildTranslationMatrixRowMajorGLFloat(vectorModelTranslation);//1, 1, 1);
-
     rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
-    //rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
-
     Vector3GLF justX = {1.0F, 0.0F, 0.0F};
     Vector3GLF justY = {0.0F, 1.0F, 0.0F};
     Vector3GLF justZ = {0.0F, 0.0F, 1.0F};
-    
-    //normalizeVector(v3);
-
-    // 25.10.2020 23:03 rotationModelMatrix = rotationAroundArbitraryAxies(v3, rotationStep);
-    //rotationModelMatrix = rotationAroundArbitraryAxies(v3, 1.75F*deltaTime);
-    
-    // 04.11.2020 2330 rotationModelMatrix = rotationAroundArbitraryAxies(v3, rotationStep);
     rotationModelMatrix = rotationAroundArbitraryAxies(justX, rotationStep);
     rotationModelMatrix = multiply(rotationModelMatrix, rotationAroundArbitraryAxies(justY, rotationStep));
     rotationModelMatrix = multiply(rotationModelMatrix, rotationAroundArbitraryAxies(justZ, rotationStep));
 
-    //buildAllRotationMatrix((const float& p, const float& y, const float& r, bool isTransposed = false)
-
     modelMatrix = multiply(rotationModelMatrix, modelTranslationMatrix);
 
-    //modelViewMatrix = multiply(viewMatrix, modelMatrix);
     modelViewMatrix = multiply(modelMatrix, viewMatrix);
 
 	glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix.me00);
@@ -523,7 +481,6 @@ void YasEngineGL::render(double deltaTime)
 	glDepthFunc(GL_LEQUAL);
 
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-    //gl_Position = proj_matrix * mv_matrix * vec4(position,1.0);
 }
 
 void YasEngineGL::swapBuffers()
@@ -552,9 +509,7 @@ void YasEngineGL::run(int nCmdShow)
     initShaders();
 
     // CUBE START
-    cameraX = 0.0f; // In the example in book here is 0.0F and I change it for tests and in the example from the book cube moved to left (correct)
-                    // but here cube is little rotated.
-
+    cameraX = 0.0f;
     cameraY = 0.0f;
     cameraZ = 8.0f;
 
@@ -594,10 +549,8 @@ void YasEngineGL::run(int nCmdShow)
             newTime = timePicker.getSeconds();  
             deltaTime = newTime - time;
             time = newTime;
-        
-            //std::cout << std::fixed << newTime << std::endl;
+
             render(deltaTime);
-            //render(newTime);
 		    swapBuffers();
 
             ++frames;
