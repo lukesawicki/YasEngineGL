@@ -10,7 +10,8 @@
 #include<wglext.h>
 #include"TimePicker.hpp"
 #include"YasMathLib.hpp"
-
+#include"YasLog.hpp"
+//#define NO_DELTA_T
 //-----------------------------------------------------------------------------|---------------------------------------|
 //                                                                            80                                     120
 
@@ -37,6 +38,9 @@ class YasEngineGL
         static      LRESULT CALLBACK windowProcedure(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
         ATOM        registerWindowClass(HINSTANCE hInstance);
         
+        YasLog<double> log;
+        int helperCounter = 0;
+
         HINSTANCE applicationHandle;
         HWND      windowHandle;
         LPTSTR    windowClassName;

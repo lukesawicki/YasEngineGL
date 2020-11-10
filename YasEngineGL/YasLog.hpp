@@ -8,9 +8,9 @@ template<typename T>
 class YasLog
 {
 	public:
-		static void log(std::string prefix, std::string additionalText, T loggedVariable)
+		static void log(std::string prefix, T loggedVariable, std::string postfix)
 		{
-			std::cout << prefix << additionalText << loggedVariable << std::endl;
+			std::cout << prefix << loggedVariable << postfix << std::endl;
 		}
 
 	private:
