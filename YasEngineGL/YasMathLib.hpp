@@ -6,6 +6,25 @@
 //-----------------------------------------------------------------------------|---------------------------------------|
 //                                                                            80                                     120
 
+// About coordinates: Left handed and Right handed:
+// From website:
+// https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/geometry/coordinate-systems
+//It is also critically important to know which convention is used for the coordinate system when dealing with a
+//renderer or any other 3D application. At present, the standard in the industry tends to be the right-hand XYZ
+//coordinate system where x points to the right, y is up and z is outward (coming out of the screen).
+//Programs and 3D APIs such as Maya and OpenGL use a right-hand coordinate system, while DirectX, pbrt and PRMan
+//use a left-hand coordinate system. Note that both Maya and PRMan use a coordinate system in which the up vector
+//is called the y-axis and the forward vector is called the z-axis. Essentially, this means that the z-coordinate
+//of 3 for a point in one system is -3 in the other. For this reason, we potentially need to reverse the sign of
+//an object's z-coordinates when the geometry is exported to the renderer. The choice of coordinate system handedness
+//also plays a critical role when it comes to rotation and the cross product of two vectors. We will talk about this
+//more in the next few chapters. It's actually easy enough (but painful) to go from one coordinate system to another.
+//All that is needed is to scale the point coordinates and the camera-to-world matrix by (1, 1, -1).
+
+
+//https://www.scratchapixel.com/lessons/3d-basic-rendering/perspective-and-orthographic-projection-matrix
+//Remember that they are essentially two conventions when it comes to NDC space. Coordinates are either considered to be defined in the range [-1, 1]. This is the case of most real-time graphics APIs such as OpenGL or Direct3D. Or they can also be defined in the range [0, 1]. The RenderMan specifications define them that way. You are entirely free to choose the convention you prefer. We will stick to the convention used by graphics API because this is essentially within this context that you will see these matrices being used.
+
 // In OpenGL matrices are defined using column major order but it is strange that in perspective matrix it uses row major
 
 
@@ -45,8 +64,9 @@ static Matrix4GLF multiply(const Matrix4GLF& a,const Matrix4GLF& b)
 
 //OpenGL Right Handed Coordination System and thata are
 // In OpenGL default matrices order are column-major(column vectors);
-// from OpenGL 4.x you can change that and this matrix below is row-major
+// from OpenGL 4.x you can change that and this matrix below is ****row-major****
 // IN GLM IT IS (GLM_DEPTH_CLIP_SPACE == GLM_DEPTH_ZERO_ONE) == false
+//ROW MAJOR
 static Matrix4GLF buildPerspectiveMatrixGLF(const float& fieldOfViewY, const float& aspectRatio, const float& zNearPlane, const float& zFarPlane)
 {
     Matrix4GLF mat = {
@@ -58,6 +78,7 @@ static Matrix4GLF buildPerspectiveMatrixGLF(const float& fieldOfViewY, const flo
     return mat;
 }
 
+//ROW MAJOR
 static Matrix4GLF buildTranslationMatrixRowMajorGLFloat(const Vector3GLF& vector)
 {
     Matrix4GLF mat = {
@@ -83,6 +104,7 @@ void normalizeVector(Vector3GLF& vector)
     vector.vc2 = vector.vc2 / vectorMagnitude;
 }
 
+
 static Matrix4GLF buildAllRotationMatrix(const float& p, const float& vc1, const float& r)
 {
     Matrix4GLF mat = {
@@ -95,6 +117,7 @@ static Matrix4GLF buildAllRotationMatrix(const float& p, const float& vc1, const
     return mat;
 }
 
+// ???????? MAJOR
 static Matrix4GLF rotationAroundArbitraryAxies(Vector3GLF axisVector, const float& angle)
 {
     float c = cos(angle);
