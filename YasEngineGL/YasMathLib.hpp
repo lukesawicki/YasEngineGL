@@ -125,11 +125,19 @@ static Matrix4GLF rotationAroundArbitraryAxies(Vector3GLF axisVector, const floa
     
     normalizeVector(axisVector);
 
-    Matrix4GLF mat =
+    //Matrix4GLF mat =
+    //{
+    //    mat.me00 = c+((1.0F - c)*axisVector.vc0)* axisVector.vc0,               mat.me01 = ((1.0F-c)*axisVector.vc0)*axisVector.vc1 + s*axisVector.vc2, mat.me02 = ((1.0F-c)*axisVector.vc0)*axisVector.vc2 - s*axisVector.vc1, mat.me03 = 0.0F,
+    //    mat.me10 = ((1.0F-c)*axisVector.vc1)*axisVector.vc0 - s*axisVector.vc2, mat.me11 = c+((1.0F - c)*axisVector.vc1)*axisVector.vc1,                mat.me12 = ((1.0F-c)*axisVector.vc1)*axisVector.vc2 + s*axisVector.vc0, mat.me13 = 0.0F,
+    //    mat.me20 = ((1.0F-c)*axisVector.vc2)*axisVector.vc0 + s*axisVector.vc1, mat.me21 = ((1.0F-c)*axisVector.vc2)*axisVector.vc1 - s*axisVector.vc0, mat.me22 = c+((1.0F - c)*axisVector.vc2)*axisVector.vc2,                mat.me23 = 0.0F,
+    //    mat.me30 = 0.0F,                                                        mat.me31 = 0.0F,                                                        mat.me32 = 0.0F,                                                        mat.me33 = 1.0F,
+    //};
+
+        Matrix4GLF mat =
     {
-        mat.me00 = c+((1.0F - c)*axisVector.vc0)* axisVector.vc0,               mat.me01 = ((1.0F-c)*axisVector.vc0)*axisVector.vc1 + s*axisVector.vc2, mat.me02 = ((1.0F-c)*axisVector.vc0)*axisVector.vc2 - s*axisVector.vc1, mat.me03 = 0.0F,
-        mat.me10 = ((1.0F-c)*axisVector.vc1)*axisVector.vc0 - s*axisVector.vc2, mat.me11 = c+((1.0F - c)*axisVector.vc1)*axisVector.vc1,                mat.me12 = ((1.0F-c)*axisVector.vc1)*axisVector.vc2 + s*axisVector.vc0, mat.me13 = 0.0F,
-        mat.me20 = ((1.0F-c)*axisVector.vc2)*axisVector.vc0 + s*axisVector.vc1, mat.me21 = ((1.0F-c)*axisVector.vc2)*axisVector.vc1 - s*axisVector.vc0, mat.me22 = c+((1.0F - c)*axisVector.vc2)*axisVector.vc2,                mat.me23 = 0.0F,
+        mat.me00 = c+((1.0F - c)*axisVector.vc0)* axisVector.vc0,               mat.me01 = ((1.0F-c)*axisVector.vc0)*axisVector.vc1 - s*axisVector.vc2, mat.me02 = ((1.0F-c)*axisVector.vc0)*axisVector.vc2 + s*axisVector.vc1, mat.me03 = 0.0F,
+        mat.me10 = ((1.0F-c)*axisVector.vc1)*axisVector.vc0 + s*axisVector.vc2, mat.me11 = c+((1.0F - c)*axisVector.vc1)*axisVector.vc1,                mat.me12 = ((1.0F-c)*axisVector.vc1)*axisVector.vc2 - s*axisVector.vc0, mat.me13 = 0.0F,
+        mat.me20 = ((1.0F-c)*axisVector.vc2)*axisVector.vc0 - s*axisVector.vc1, mat.me21 = ((1.0F-c)*axisVector.vc2)*axisVector.vc1 + s*axisVector.vc0, mat.me22 = c+((1.0F - c)*axisVector.vc2)*axisVector.vc2,                mat.me23 = 0.0F,
         mat.me30 = 0.0F,                                                        mat.me31 = 0.0F,                                                        mat.me32 = 0.0F,                                                        mat.me33 = 1.0F,
     };
 
