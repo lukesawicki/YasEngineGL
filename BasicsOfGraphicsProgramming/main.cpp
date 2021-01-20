@@ -3,10 +3,63 @@
 #include<cmath>
 #include<SDL.h>
 #include"Mathematics.hpp"
+#include"TimePicker.hpp"
 
 void drawGentleLine(Vector2D<int>* point0, Vector2D<int>* point1, SDL_Renderer* renderer);
 void drawSteepLine(Vector2D<int>* point0, Vector2D<int>* point1, SDL_Renderer* renderer);
 void drawLine(Vector2D<int>* point0, Vector2D<int>* point1, SDL_Renderer* renderer);
+
+float vertexPositionsCube[24] = {-1,  1, -1,
+                                  1,  1, -1,
+                                  1,  1, -1,
+                                  1, -1, -1,
+                                 -1,  1,  1,
+                                  1,  1,  1,
+                                 -1, -1,  1,
+                                  1, -1,  1
+                                };
+
+
+       // CUBE EXAMPLE START
+
+        float cameraX;
+        float cameraY;
+        float cameraZ;
+
+        float cubeLocationX;
+        float cubeLocationY;
+        float cubeLocationZ;
+
+        float aspect;
+
+        // Transformations data
+        float movingStepX = 0.0F;
+        float movingStepY = 0.0F;
+        float movingStepZ = 0.0F;
+        float movingStepFactorX = 0.35F;
+        float movingStepFactorY = 0.52F;
+        float movingStepFactorZ = 0.7F;
+
+        float rotationStep = 0.0F;
+        float rotationSpeedFactor = 0.95F;
+
+        Matrix4GLF allRotationsMatrix;
+
+        Matrix4GLF perspectiveMatrix;
+
+        Matrix4GLF viewMatrix;
+
+        Matrix4GLF modelMatrix;
+
+        Matrix4GLF modelViewMatrix;
+
+        Matrix4GLF modelTranslationMatrix;
+        Matrix4GLF rotationModelMatrix;
+
+        int windowWidth = 600;
+        int windowHeight = 600;
+
+        int helperCounter = 0;
 
 int main(int argc, char * argv[])
 {
@@ -14,7 +67,7 @@ int main(int argc, char * argv[])
     SDL_Window* window;
 
     SDL_Init(SDL_INIT_VIDEO);
-    SDL_CreateWindowAndRenderer(640, 480, 0, &window, &renderer);
+    SDL_CreateWindowAndRenderer(windowWidth, windowHeight, 0, &window, &renderer);
     
     if(!window)
     {
@@ -43,10 +96,27 @@ int main(int argc, char * argv[])
     drawLine(point4, point5, renderer);
     drawLine(point6, point7, renderer);
 
+    //
+
     SDL_RenderPresent(renderer);
     SDL_Event event;
     bool running = true;
 
+
+    double time;
+    double newTime;
+    double deltaTime;
+    double fps;
+    double fpsTime;
+    unsigned int frames;
+    MSG message;
+
+    TimePicker timePicker = TimePicker();
+    time = timePicker.getSeconds();
+
+    fpsTime = 0.0F;
+    frames = 0;
+    message.message = WM_NULL;
 
     while(running)
     {
@@ -54,6 +124,16 @@ int main(int argc, char * argv[])
         while(SDL_PollEvent(&event))
         {
             running = event.type != SDL_QUIT;
+            /////////////////////////////////////////////////////////////////////
+
+	       
+
+            //from shader:
+            //gl_Position = proj_matrix * mv_matrix * vec4(position,1.0);
+
+            /////////////////////////////////////////////////////////////////////
+
+
         }
     }
 

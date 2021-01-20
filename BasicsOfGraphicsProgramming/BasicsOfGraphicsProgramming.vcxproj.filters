@@ -24,9 +24,15 @@
     <ClCompile Include="temporary.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="TimePicker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mathematics.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TimePicker.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
