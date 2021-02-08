@@ -452,61 +452,33 @@ void YasEngineGL::render(double deltaTime)
 
     viewMatrix = buildTranslationMatrixRowMajorGLFloat(cameraVector);
     ++helperCounter;
-#ifndef NO_DELTA_T
+
     movingStepX = movingStepX + movingStepFactorX*deltaTime;
-    //log.log("movingStepX ", movingStepX, "");
-    movingStepY = movingStepY + movingStepFactorY*deltaTime;
-    movingStepZ = movingStepZ + movingStepFactorZ*deltaTime;
     rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
-#endif
+        /*
+        Vector3GLF vectorModelTranslation(0, 0, 0);
 
-#ifdef NO_DELTA_T
-    double timeFactor;
-#endif
-
-    for(int i=0; i<24; i++)
-    {
-#ifdef NO_DELTA_T
-        timeFactor = deltaTime + i*10;
-#endif
-        //movingStepFactorX = movingStepFactorX * i;
-        //movingStepFactorY = movingStepFactorY * i;
-        //movingStepFactorZ = movingStepFactorZ * i;
-        //log.log("movingStepFacorX ", movingStepFactorX, "");
-        //log.log("movingStepX", movingStepX, "");
-#ifndef NO_DELTA_T
-        Vector3GLF vectorModelTranslation(sin(movingStepX+i*80)*2.0F+i, cos(movingStepY+i*45)*2.0F, sin(movingStepZ+i*90)*2.0F);
-#endif
-
-#ifdef NO_DELTA_T
-        Vector3GLF vectorModelTranslation(sin(0.35F*timeFactor)*8.0F, cos(0.52F*timeFactor)*8.0F, sin(0.7F*timeFactor)*8.0F);
-#endif
         modelTranslationMatrix = buildTranslationMatrixRowMajorGLFloat(vectorModelTranslation);//1, 1, 1);
+        */
         //rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
         Vector3GLF justX = {1.0F, 0.0F, 0.0F};
-        Vector3GLF justY = {0.0F, 1.0F, 0.0F};
-        Vector3GLF justZ = {0.0F, 0.0F, 1.0F};
-#ifndef NO_DELTA_T
+        //Vector3GLF justY = {0.0F, 1.0F, 0.0F};
+        //Vector3GLF justZ = {0.0F, 0.0F, 1.0F};
+
         //log.log("RotationStep: ", rotationStep, "");
         rotationModelMatrix = rotationAroundArbitraryAxies(justX, rotationStep);
-        rotationModelMatrix = multiply(rotationModelMatrix, rotationAroundArbitraryAxies(justY, rotationStep));
-        rotationModelMatrix = multiply(rotationModelMatrix, rotationAroundArbitraryAxies(justZ, rotationStep));
-#endif
+
         if(helperCounter == 5)
         {
             return;
         }
-#ifdef NO_DELTA_T
-        rotationModelMatrix = rotationAroundArbitraryAxies(justX, 1.75F*deltaTime);
-        rotationModelMatrix = multiply(rotationModelMatrix, rotationAroundArbitraryAxies(justY,  1.75F*deltaTime));
-        rotationModelMatrix = multiply(rotationModelMatrix, rotationAroundArbitraryAxies(justZ,  1.75F*deltaTime));
-#endif
+
         modelMatrix = multiply(rotationModelMatrix, modelTranslationMatrix);
 
         modelViewMatrix = multiply(modelMatrix, viewMatrix);
 
 	    glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelViewMatrix.me00);
-	    glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &perspectiveMatrix.me00);
+	    glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, &perspectiveMatrix.me00);  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject[0]);
 	    glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
@@ -516,7 +488,6 @@ void YasEngineGL::render(double deltaTime)
 	    glDepthFunc(GL_LEQUAL);
 
 	    glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
 }
 
 void YasEngineGL::swapBuffers()

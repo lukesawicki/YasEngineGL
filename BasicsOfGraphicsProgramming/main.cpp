@@ -1,3 +1,4 @@
+#include<cstdlib>
 #include<iostream>
 #include<vector>
 #include<cmath>
@@ -8,6 +9,8 @@
 void drawGentleLine(Vector2D<int>* point0, Vector2D<int>* point1, SDL_Renderer* renderer);
 void drawSteepLine(Vector2D<int>* point0, Vector2D<int>* point1, SDL_Renderer* renderer);
 void drawLine(Vector2D<int>* point0, Vector2D<int>* point1, SDL_Renderer* renderer);
+void preparePerspectiveAndViewMatrix();
+void render(float dt, SDL_Renderer *renderer);
 
 float vertexPositionsCube[24] = {-1,  1, -1,
                                   1,  1, -1,
@@ -61,6 +64,9 @@ float vertexPositionsCube[24] = {-1,  1, -1,
 
         int helperCounter = 0;
 
+        int pixelCounter = 0;
+//-----------------------------------------------------------------------------|---------------------------------------|
+//                                                                            80                                     120
 int main(int argc, char * argv[])
 {
     SDL_Renderer *renderer;
@@ -68,7 +74,7 @@ int main(int argc, char * argv[])
 
     SDL_Init(SDL_INIT_VIDEO);
     SDL_CreateWindowAndRenderer(windowWidth, windowHeight, 0, &window, &renderer);
-    
+
     if(!window)
     {
         std::cerr << "Error failed to create window!\n";
@@ -77,7 +83,7 @@ int main(int argc, char * argv[])
     
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    //SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 
     Vector2D<int>* point0 = new Vector2D<int>(60, 60);
     Vector2D<int>* point1 = new Vector2D<int>(200, 80); 
@@ -98,7 +104,7 @@ int main(int argc, char * argv[])
 
     //
 
-    SDL_RenderPresent(renderer);
+    
     SDL_Event event;
     bool running = true;
 
@@ -118,22 +124,63 @@ int main(int argc, char * argv[])
     frames = 0;
     message.message = WM_NULL;
 
+    preparePerspectiveAndViewMatrix();
+    int circleSpeedFactor = 1000;
+    int circleSpeed = 2 * circleSpeedFactor;
+    int circleCenterX = 50;
+    int circleCenterY = 300;
+    int circleX = 0;
+    int circleY = 0;
     while(running)
     {
     
         while(SDL_PollEvent(&event))
         {
             running = event.type != SDL_QUIT;
-            /////////////////////////////////////////////////////////////////////
+        }
+        
 
-	       
+        newTime = timePicker.getSeconds();  
+        deltaTime = newTime - time;
+        time = newTime;
+        printf("%f",deltaTime);
+        //render(deltaTime, renderer);
 
-            //from shader:
-            //gl_Position = proj_matrix * mv_matrix * vec4(position,1.0);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    int randomX = rand() % 600;
+    int randomY = rand() & 600;
+    pixelCounter++;
+    SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        circleCenterX = circleCenterX + deltaTime * circleSpeed;
+        
+        for(int i=0; i< 360;i++) {
+            circleX = circleCenterX + 50*cos(i);
+            circleY = circleCenterY + 50*sin(i);
+            SDL_RenderDrawPoint(renderer, circleX, circleY);
+        }
 
-            /////////////////////////////////////////////////////////////////////
+    movingStepX = movingStepX + movingStepFactorX*deltaTime;
+    rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
+    Vector3GLF justX = {1.0F, 0.0F, 0.0F};
+    rotationModelMatrix = rotationAroundArbitraryAxies(justX, rotationStep);
+    modelMatrix = multiply(rotationModelMatrix, modelTranslationMatrix);
+    modelViewMatrix = multiply(modelMatrix, viewMatrix);
 
 
+    //from shader:
+    //gl_Position = proj_matrix * mv_matrix * vec4(position,1.0);
+    /////////////////////////////////////////////////////////////////////
+    SDL_RenderPresent(renderer);
+
+
+        ++frames;
+        fpsTime = fpsTime + deltaTime;
+        if(fpsTime >= 1.0F)
+        {
+            fps = frames / fpsTime;
+            frames = 0;
+            fpsTime = 0.0F;
         }
     }
 
@@ -143,6 +190,9 @@ int main(int argc, char * argv[])
     SDL_Quit();
     return 0;
 }
+//                                                                            80                                     120
+//-----------------------------------------------------------------------------|---------------------------------------|
+
 
 void drawGentleLine(Vector2D<int>* point0, Vector2D<int>* point1, SDL_Renderer* renderer)
 {
@@ -235,3 +285,29 @@ void drawLine(Vector2D<int>* point0, Vector2D<int>* point1, SDL_Renderer* render
     }
 }
 
+void preparePerspectiveAndViewMatrix()
+{
+	aspect = static_cast<float>(windowWidth / windowHeight);
+    perspectiveMatrix = buildPerspectiveMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
+    Vector3GLF cameraVector(-cameraX, -cameraY, -cameraZ);
+    viewMatrix = buildTranslationMatrixRowMajorGLFloat(cameraVector);
+}
+
+void render(float dt, SDL_Renderer *renderer)
+{
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    int randomX = rand() % 600;
+    int randomY = rand() & 600;
+    pixelCounter++;
+    if(pixelCounter < 1000)
+    {
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        SDL_RenderDrawPoint(renderer, randomX, randomY);
+    }
+    ////////////////////////////////////////////////////////////////////
+    //from shader:
+    //gl_Position = proj_matrix * mv_matrix * vec4(position,1.0);
+    /////////////////////////////////////////////////////////////////////
+    SDL_RenderPresent(renderer);
+}
