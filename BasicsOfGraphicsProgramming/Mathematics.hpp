@@ -1,6 +1,8 @@
 #ifndef MATHEMATICS_HPP
 #define MATHEMATICS_HPP
 
+
+
 template <typename T>
 int signum(T a)
 {
@@ -32,6 +34,7 @@ class Vector2D
 };
 
 #include<cmath>
+
 
 //-----------------------------------------------------------------------------|---------------------------------------|
 //                                                                            80                                     120
@@ -69,6 +72,39 @@ struct Vector3GLF {
         this->vc2 = vc2;
     }
 } typedef Vector3F, Vec3GLF;
+
+
+struct Vector4GLF {
+    float vc0;
+    float vc1;
+    float vc2;
+    float vc3;
+
+    Vector4GLF()
+    {
+        this->vc0=0.0F;
+        this->vc1=0.0F;
+        this->vc2=0.0F;
+        this->vc3=1.0F;
+    }
+
+    Vector4GLF(float vc0, float vc1, float vc2, float vc3)
+    {
+        this->vc0 = vc0;
+        this->vc1 = vc1;
+        this->vc2 = vc2;
+        this->vc3 = vc3;
+    }
+
+    Vector4GLF(const Vector3GLF& vector3glf)
+    {
+        this->vc0 = vector3glf.vc0;
+        this->vc1 = vector3glf.vc1;
+        this->vc2 = vector3glf.vc2;
+        this->vc3 = 1;
+    }
+
+} typedef Vector4F, Vec4GLF;
 
 struct Matrix4GLF {
     float me00=1.0F, me01=0.0F, me02=0.0F, me03=0.0F;
@@ -163,7 +199,7 @@ static Matrix4GLF rotationAroundArbitraryAxies(Vector3GLF axisVector, const floa
     //    mat.me30 = 0.0F,                                                        mat.me31 = 0.0F,                                                        mat.me32 = 0.0F,                                                        mat.me33 = 1.0F,
     //};
 
-        Matrix4GLF mat =
+    Matrix4GLF mat =
     {
         mat.me00 = c+((1.0F - c)*axisVector.vc0)* axisVector.vc0,               mat.me01 = ((1.0F-c)*axisVector.vc0)*axisVector.vc1 - s*axisVector.vc2, mat.me02 = ((1.0F-c)*axisVector.vc0)*axisVector.vc2 + s*axisVector.vc1, mat.me03 = 0.0F,
         mat.me10 = ((1.0F-c)*axisVector.vc1)*axisVector.vc0 + s*axisVector.vc2, mat.me11 = c+((1.0F - c)*axisVector.vc1)*axisVector.vc1,                mat.me12 = ((1.0F-c)*axisVector.vc1)*axisVector.vc2 - s*axisVector.vc0, mat.me13 = 0.0F,
@@ -173,6 +209,40 @@ static Matrix4GLF rotationAroundArbitraryAxies(Vector3GLF axisVector, const floa
 
     return mat;
 }
+
+static Vector4GLF vectorMultiplyedByMatrix(Vector4GLF vector4glf, Matrix4GLF mat)
+{
+    return Vector4GLF
+    (
+        vector4glf.vc0 * mat.me00 + vector4glf.vc1 * mat.me10 + vector4glf.vc2 * mat.me20 + vector4glf.vc3 * mat.me30,
+        vector4glf.vc0 * mat.me01 + vector4glf.vc1 * mat.me11 + vector4glf.vc2 * mat.me21 + vector4glf.vc3 * mat.me31,
+        vector4glf.vc0 * mat.me02 + vector4glf.vc1 * mat.me12 + vector4glf.vc2 * mat.me22 + vector4glf.vc3 * mat.me32,
+        vector4glf.vc0 * mat.me03 + vector4glf.vc1 * mat.me13 + vector4glf.vc2 * mat.me23 + vector4glf.vc3 * mat.me33
+    );
+}
+
+static Vector4GLF matrixMultiplyedByVector(Matrix4GLF mat, Vector4GLF vector4glf)
+{
+    return Vector4GLF
+    (
+        mat.me00 * vector4glf.vc0 + mat.me01 * vector4glf.vc1 + mat.me02 * vector4glf.vc2 + mat.me03 * vector4glf.vc3,
+        mat.me10 * vector4glf.vc0 + mat.me11 * vector4glf.vc1 + mat.me12 * vector4glf.vc2 + mat.me13 * vector4glf.vc3,
+        mat.me20 * vector4glf.vc0 + mat.me21 * vector4glf.vc1 + mat.me22 * vector4glf.vc2 + mat.me23 * vector4glf.vc3,
+        mat.me30 * vector4glf.vc0 + mat.me31 * vector4glf.vc1 + mat.me32 * vector4glf.vc2 + mat.me33 * vector4glf.vc3
+    );
+
+}
+
+    //float vc0;
+    //float vc1;
+    //float vc2;
+    //float vc3;
+
+    //float me00=1.0F, me01=0.0F, me02=0.0F, me03=0.0F;
+    //float me10=0.0F, me11=1.0F, me12=0.0F, me13=0.0F;
+    //float me20=0.0F, me21=0.0F, me22=1.0F, me23=0.0F;
+    //float me30=0.0F, me31=0.0F, me32=0.0F, me33=1.0F;
+
 
 Vector2D<float>* toWindowCoordinates(float x, float y, int windowWidth, int windowHeight) {
     return new Vector2D<float>(x + (windowWidth/2.0F), (windowHeight/2.0F) - y );

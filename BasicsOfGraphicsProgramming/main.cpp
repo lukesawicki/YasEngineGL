@@ -11,15 +11,17 @@ void drawSteepLine(Vector2D<int>* point0, Vector2D<int>* point1, SDL_Renderer* r
 void drawLine(Vector2D<int>* point0, Vector2D<int>* point1, SDL_Renderer* renderer);
 void preparePerspectiveAndViewMatrix();
 void render(float dt, SDL_Renderer *renderer);
+void processPoints(float* points, int numberOfPoints,const Matrix4GLF& matrix);
 
-float vertexPositionsCube[24] = {-1,  1, -1,
-                                  1,  1, -1,
-                                  1,  1, -1,
-                                  1, -1, -1,
-                                 -1,  1,  1,
-                                  1,  1,  1,
-                                 -1, -1,  1,
-                                  1, -1,  1
+
+float vertexPositionsCube[24] = {-1,  1, -1, //0
+                                  1,  1, -1, //1
+                                  1,  1, -1, //2
+                                  1, -1, -1, //3
+                                 -1,  1,  1, //4
+                                  1,  1,  1, //5
+                                 -1, -1,  1, //6
+                                  1, -1,  1 //7
                                 };
 
 
@@ -58,6 +60,8 @@ float vertexPositionsCube[24] = {-1,  1, -1,
 
         Matrix4GLF modelTranslationMatrix;
         Matrix4GLF rotationModelMatrix;
+
+        Matrix4GLF matrixInShaderInOpenGL;
 
         int windowWidth = 600;
         int windowHeight = 600;
@@ -143,8 +147,10 @@ int main(int argc, char * argv[])
         newTime = timePicker.getSeconds();  
         deltaTime = newTime - time;
         time = newTime;
-        printf("%f",deltaTime);
+        //printf("%f",deltaTime);
         //render(deltaTime, renderer);
+    
+    
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -152,13 +158,18 @@ int main(int argc, char * argv[])
     int randomY = rand() & 600;
     pixelCounter++;
     SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-        circleCenterX = circleCenterX + deltaTime * circleSpeed;
-        
-        for(int i=0; i< 360;i++) {
-            circleX = circleCenterX + 50*cos(i);
-            circleY = circleCenterY + 50*sin(i);
-            SDL_RenderDrawPoint(renderer, circleX, circleY);
-        }
+    circleCenterX = circleCenterX + deltaTime * circleSpeed;
+
+    for(int i=0; i< 360;i++) {
+        circleX = circleCenterX + 50*cos(i);
+        circleY = circleCenterY + 50*sin(i);
+        SDL_RenderDrawPoint(renderer, circleX, circleY);
+    }
+
+    aspect = static_cast<float>(windowWidth / windowHeight);
+    perspectiveMatrix = buildPerspectiveMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
+    Vector3GLF cameraVector(-cameraX, -cameraY, -cameraZ);
+    viewMatrix = buildTranslationMatrixRowMajorGLFloat(cameraVector);
 
     movingStepX = movingStepX + movingStepFactorX*deltaTime;
     rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
@@ -171,6 +182,30 @@ int main(int argc, char * argv[])
     //from shader:
     //gl_Position = proj_matrix * mv_matrix * vec4(position,1.0);
     /////////////////////////////////////////////////////////////////////
+    matrixInShaderInOpenGL = multiply(perspectiveMatrix, modelViewMatrix);
+    processPoints(vertexPositionsCube, 8, matrixInShaderInOpenGL);
+
+    for(int i=0; i<=8; i++)
+    {
+        printf("%f x: ",vertexPositionsCube[i*3]);
+        printf("%f y: ",vertexPositionsCube[i*3+1]);
+        printf("%f z: ",vertexPositionsCube[i*3+2]);
+    }
+
+
+     SDL_RenderDrawPoint(renderer, vertexPositionsCube[0], vertexPositionsCube[1]);
+     SDL_RenderDrawPoint(renderer, vertexPositionsCube[3], vertexPositionsCube[4]);
+     SDL_RenderDrawPoint(renderer, vertexPositionsCube[6], vertexPositionsCube[7]);
+     SDL_RenderDrawPoint(renderer, vertexPositionsCube[9], vertexPositionsCube[10]);
+
+     SDL_RenderDrawPoint(renderer, vertexPositionsCube[12], vertexPositionsCube[13]);
+     SDL_RenderDrawPoint(renderer, vertexPositionsCube[15], vertexPositionsCube[16]);
+     SDL_RenderDrawPoint(renderer, vertexPositionsCube[18], vertexPositionsCube[19]);
+     SDL_RenderDrawPoint(renderer, vertexPositionsCube[21], vertexPositionsCube[22]);
+
+
+    //drawPoints(vertexPositionsCube, renderer, );
+
     SDL_RenderPresent(renderer);
 
 
@@ -285,12 +320,48 @@ void drawLine(Vector2D<int>* point0, Vector2D<int>* point1, SDL_Renderer* render
     }
 }
 
+void drawPoints(float* points, Matrix4GLF matrix, SDL_Renderer* renderer)
+{
+    //float vertexPositionsCube[24]
+    for(int i=0; i<8; i++)
+    {
+        SDL_RenderDrawPoint(renderer, points[i*3], points[(i*3)+1]);
+    }
+}
+
+void processPoints(float* points, int numberOfPoints,const Matrix4GLF& matrix)
+{
+    //float* processedPoints = new float[numberOfPoints*3];
+    std::vector<Vector4GLF> newPoints;
+
+    Vector4GLF temporaryVector;
+    for(int i=0; i<numberOfPoints; i++)
+    {
+        temporaryVector.vc0 = points[i*3];
+        temporaryVector.vc0 = points[i*3+1];
+        temporaryVector.vc0 = points[i*3+2];
+        newPoints.push_back(matrixMultiplyedByVector(matrix, temporaryVector));
+    }
+
+    int i=0;
+
+    for(const Vector4GLF& point: newPoints)
+    {
+        points[i++] = point.vc0 + (windowWidth/2.0F);
+        points[i++] = (windowHeight/2.0F) - point.vc1;
+        points[i++] = point.vc2;
+    }
+
+    //return new Vector2D<float>(x + (windowWidth/2.0F), (windowHeight/2.0F) - y );
+
+    //gl_Position = proj_matrix * mv_matrix * vec4(position,1.0);
+    //static Vector4GLF matrixMultiplyedByVector(Matrix4GLF mat, Vector4GLF vector4glf)
+
+}
+
 void preparePerspectiveAndViewMatrix()
 {
-	aspect = static_cast<float>(windowWidth / windowHeight);
-    perspectiveMatrix = buildPerspectiveMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
-    Vector3GLF cameraVector(-cameraX, -cameraY, -cameraZ);
-    viewMatrix = buildTranslationMatrixRowMajorGLFloat(cameraVector);
+	
 }
 
 void render(float dt, SDL_Renderer *renderer)
