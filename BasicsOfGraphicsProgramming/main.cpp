@@ -27,8 +27,8 @@ float vertexPositionsCube[24] = {-1,  1, -1, //0
 
        // CUBE EXAMPLE START
 
-        float cameraX;
-        float cameraY;
+        float cameraX = 0.0F;
+        float cameraY = 0.0F;
         float cameraZ = 8.0F;
 
         float cubeLocationX = 0.0f;
@@ -89,27 +89,6 @@ int main(int argc, char * argv[])
     
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
-    //SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-
-    Vector2D<int>* point0 = new Vector2D<int>(60, 60);
-    Vector2D<int>* point1 = new Vector2D<int>(200, 80); 
-
-    Vector2D<int>* point2 = new Vector2D<int>(60, 80);
-    Vector2D<int>* point3 = new Vector2D<int>(200, 60); 
-
-    Vector2D<int>* point4 = new Vector2D<int>(60, 60);
-    Vector2D<int>* point5 = new Vector2D<int>(200, 60); 
-
-    Vector2D<int>* point6 = new Vector2D<int>(60, 60);
-    Vector2D<int>* point7 = new Vector2D<int>(60, 200); 
-
-    drawLine(point0, point1, renderer);
-    drawLine(point2, point3, renderer);
-    drawLine(point4, point5, renderer);
-    drawLine(point6, point7, renderer);
-
-    //
-
     
     SDL_Event event;
     bool running = true;
