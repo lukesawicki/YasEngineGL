@@ -155,8 +155,10 @@ int main(int argc, char * argv[])
     viewMatrix = buildTranslationMatrixRowMajorGLFloat(cameraVector);
 
     modelMatrix = buildTranslationMatrixRowMajorGLFloat(cubePosition); 
-    modelViewMatrix = multiply(modelMatrix, viewMatrix);
 
+
+    // ??modelViewMatrix = multiply(modelMatrix, viewMatrix);
+    modelViewMatrix = multiply(viewMatrix, modelMatrix);
 
     //from shader:
     //gl_Position = proj_matrix * mv_matrix * vec4(position,1.0);
@@ -167,15 +169,27 @@ int main(int argc, char * argv[])
     matrixInShaderInOpenGL = multiply(perspectiveMatrix, modelViewMatrix);
     processPoints(vertexPositionsCube, 8, matrixInShaderInOpenGL);
 
-    std::cout << "X " << vertexPositionsCube[0] * windowWidth << "Y " << vertexPositionsCube[1]  * (1-windowHeight) << std::endl;
-    std::cout << "X " << vertexPositionsCube[3] * windowWidth << "Y " << vertexPositionsCube[4]  * (1-windowHeight) << std::endl;
-    std::cout << "X " << vertexPositionsCube[6] * windowWidth << "Y " << vertexPositionsCube[7]  * (1-windowHeight) << std::endl;
-    std::cout << "X " << vertexPositionsCube[9] * windowWidth << "Y " << vertexPositionsCube[10] * (1-windowHeight) << std::endl;
-                                                                                                 
-    std::cout << "X " << vertexPositionsCube[12]* windowWidth << "Y " << vertexPositionsCube[13] * (1-windowHeight) << std::endl;
-    std::cout << "X " << vertexPositionsCube[15]* windowWidth << "Y " << vertexPositionsCube[16] * (1-windowHeight) << std::endl;
-    std::cout << "X " << vertexPositionsCube[18]* windowWidth << "Y " << vertexPositionsCube[19] * (1-windowHeight) << std::endl;
-    std::cout << "X " << vertexPositionsCube[21]* windowWidth << "Y " << vertexPositionsCube[22] * (1-windowHeight) << std::endl;
+    //std::cout << "X " << vertexPositionsCube[0] * windowWidth << "Y " << vertexPositionsCube[1]  * (1-windowHeight) << std::endl;
+    //std::cout << "X " << vertexPositionsCube[3] * windowWidth << "Y " << vertexPositionsCube[4]  * (1-windowHeight) << std::endl;
+    //std::cout << "X " << vertexPositionsCube[6] * windowWidth << "Y " << vertexPositionsCube[7]  * (1-windowHeight) << std::endl;
+    //std::cout << "X " << vertexPositionsCube[9] * windowWidth << "Y " << vertexPositionsCube[10] * (1-windowHeight) << std::endl;
+    //                                                                                             
+    //std::cout << "X " << vertexPositionsCube[12]* windowWidth << "Y " << vertexPositionsCube[13] * (1-windowHeight) << std::endl;
+    //std::cout << "X " << vertexPositionsCube[15]* windowWidth << "Y " << vertexPositionsCube[16] * (1-windowHeight) << std::endl;
+    //std::cout << "X " << vertexPositionsCube[18]* windowWidth << "Y " << vertexPositionsCube[19] * (1-windowHeight) << std::endl;
+    //std::cout << "X " << vertexPositionsCube[21]* windowWidth << "Y " << vertexPositionsCube[22] * (1-windowHeight) << std::endl;
+
+
+    
+    std::cout << "X " << vertexPositionsCube[0]  << " Y " << vertexPositionsCube[1]   << std::endl;
+    std::cout << "X " << vertexPositionsCube[3]  << " Y " << vertexPositionsCube[4]   << std::endl;
+    std::cout << "X " << vertexPositionsCube[6]  << " Y " << vertexPositionsCube[7]   << std::endl;
+    std::cout << "X " << vertexPositionsCube[9]  << " Y " << vertexPositionsCube[10]  << std::endl;
+                                                                                     
+    std::cout << "X " << vertexPositionsCube[12] << " Y " << vertexPositionsCube[13]  << std::endl;
+    std::cout << "X " << vertexPositionsCube[15] << " Y " << vertexPositionsCube[16]  << std::endl;
+    std::cout << "X " << vertexPositionsCube[18] << " Y " << vertexPositionsCube[19]  << std::endl;
+    std::cout << "X " << vertexPositionsCube[21] << " Y " << vertexPositionsCube[22]  << std::endl;
 
      SDL_RenderDrawPoint(renderer, vertexPositionsCube[0] , vertexPositionsCube[1] );
      SDL_RenderDrawPoint(renderer, vertexPositionsCube[3] , vertexPositionsCube[4] );
@@ -322,9 +336,16 @@ void processPoints(float* points, int numberOfPoints,const Matrix4GLF& matrix)
     for(int i=0; i<numberOfPoints; i++)
     {
         temporaryVector.vc0 = points[i*3];
-        temporaryVector.vc0 = points[i*3+1];
-        temporaryVector.vc0 = points[i*3+2];
+        temporaryVector.vc1 = points[i*3+1];
+        temporaryVector.vc2 = points[i*3+2];
         newPoints.push_back(matrixMultiplyedByVector(matrix, temporaryVector));
+    }
+
+    for(int i=0; i<numberOfPoints; i++)
+    {
+        points[i*3]     = newPoints.at(i).vc0;
+        points[i*3+1]   = newPoints.at(i).vc1;
+        points[i*3+2]   = newPoints.at(i).vc2;
     }
 
     int i=0;
