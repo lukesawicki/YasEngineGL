@@ -29,11 +29,13 @@ float vertexPositionsCube[24] = {-1,  1, -1, //0
 
         float cameraX;
         float cameraY;
-        float cameraZ;
+        float cameraZ = 8.0F;
 
-        float cubeLocationX;
-        float cubeLocationY;
-        float cubeLocationZ;
+        float cubeLocationX = 0.0f;
+        float cubeLocationY = -2.0f;
+        float cubeLocationZ = 0.0f;
+
+        Vector3GLF cubePosition(cubeLocationX, cubeLocationY, cubeLocationZ);
 
         float aspect;
 
@@ -135,6 +137,8 @@ int main(int argc, char * argv[])
     int circleCenterY = 300;
     int circleX = 0;
     int circleY = 0;
+    Vector3GLF cameraVector(-cameraX, -cameraY, -cameraZ);
+
     while(running)
     {
     
@@ -168,36 +172,37 @@ int main(int argc, char * argv[])
 
     aspect = static_cast<float>(windowWidth / windowHeight);
     perspectiveMatrix = buildPerspectiveMatrixGLF(1.0472F, aspect, 0.1F, 1000.0F);
-    Vector3GLF cameraVector(-cameraX, -cameraY, -cameraZ);
+   
     viewMatrix = buildTranslationMatrixRowMajorGLFloat(cameraVector);
 
-    movingStepX = movingStepX + movingStepFactorX*deltaTime;
-    rotationStep = rotationStep + (-1.75F*deltaTime*rotationSpeedFactor);
-    Vector3GLF justX = {1.0F, 0.0F, 0.0F};
-    rotationModelMatrix = rotationAroundArbitraryAxies(justX, rotationStep);
-    modelMatrix = multiply(rotationModelMatrix, modelTranslationMatrix);
+    modelMatrix = buildTranslationMatrixRowMajorGLFloat(cubePosition); 
     modelViewMatrix = multiply(modelMatrix, viewMatrix);
 
 
     //from shader:
     //gl_Position = proj_matrix * mv_matrix * vec4(position,1.0);
-    /////////////////////////////////////////////////////////////////////
+
+        //    int windowWidth = 600;
+        //int windowHeight = 600;
+
     matrixInShaderInOpenGL = multiply(perspectiveMatrix, modelViewMatrix);
     processPoints(vertexPositionsCube, 8, matrixInShaderInOpenGL);
 
-    for(int i=0; i<=8; i++)
-    {
-        printf("%f x: ",vertexPositionsCube[i*3]);
-        printf("%f y: ",vertexPositionsCube[i*3+1]);
-        printf("%f z: ",vertexPositionsCube[i*3+2]);
-    }
+    std::cout << "X " << vertexPositionsCube[0] * windowWidth << "Y " << vertexPositionsCube[1]  * (1-windowHeight) << std::endl;
+    std::cout << "X " << vertexPositionsCube[3] * windowWidth << "Y " << vertexPositionsCube[4]  * (1-windowHeight) << std::endl;
+    std::cout << "X " << vertexPositionsCube[6] * windowWidth << "Y " << vertexPositionsCube[7]  * (1-windowHeight) << std::endl;
+    std::cout << "X " << vertexPositionsCube[9] * windowWidth << "Y " << vertexPositionsCube[10] * (1-windowHeight) << std::endl;
+                                                                                                 
+    std::cout << "X " << vertexPositionsCube[12]* windowWidth << "Y " << vertexPositionsCube[13] * (1-windowHeight) << std::endl;
+    std::cout << "X " << vertexPositionsCube[15]* windowWidth << "Y " << vertexPositionsCube[16] * (1-windowHeight) << std::endl;
+    std::cout << "X " << vertexPositionsCube[18]* windowWidth << "Y " << vertexPositionsCube[19] * (1-windowHeight) << std::endl;
+    std::cout << "X " << vertexPositionsCube[21]* windowWidth << "Y " << vertexPositionsCube[22] * (1-windowHeight) << std::endl;
 
-
-     SDL_RenderDrawPoint(renderer, vertexPositionsCube[0], vertexPositionsCube[1]);
-     SDL_RenderDrawPoint(renderer, vertexPositionsCube[3], vertexPositionsCube[4]);
-     SDL_RenderDrawPoint(renderer, vertexPositionsCube[6], vertexPositionsCube[7]);
-     SDL_RenderDrawPoint(renderer, vertexPositionsCube[9], vertexPositionsCube[10]);
-
+     SDL_RenderDrawPoint(renderer, vertexPositionsCube[0] , vertexPositionsCube[1] );
+     SDL_RenderDrawPoint(renderer, vertexPositionsCube[3] , vertexPositionsCube[4] );
+     SDL_RenderDrawPoint(renderer, vertexPositionsCube[6] , vertexPositionsCube[7] );
+     SDL_RenderDrawPoint(renderer, vertexPositionsCube[9] , vertexPositionsCube[10]);
+                                                              
      SDL_RenderDrawPoint(renderer, vertexPositionsCube[12], vertexPositionsCube[13]);
      SDL_RenderDrawPoint(renderer, vertexPositionsCube[15], vertexPositionsCube[16]);
      SDL_RenderDrawPoint(renderer, vertexPositionsCube[18], vertexPositionsCube[19]);
@@ -345,12 +350,12 @@ void processPoints(float* points, int numberOfPoints,const Matrix4GLF& matrix)
 
     int i=0;
 
-    for(const Vector4GLF& point: newPoints)
-    {
-        points[i++] = point.vc0 + (windowWidth/2.0F);
-        points[i++] = (windowHeight/2.0F) - point.vc1;
-        points[i++] = point.vc2;
-    }
+    //for(const Vector4GLF& point: newPoints)
+    //{
+    //    points[i++] = point.vc0 + (windowWidth/2.0F);
+    //    points[i++] = (windowHeight/2.0F) - point.vc1;
+    //    points[i++] = point.vc2;
+    //}
 
     //return new Vector2D<float>(x + (windowWidth/2.0F), (windowHeight/2.0F) - y );
 
