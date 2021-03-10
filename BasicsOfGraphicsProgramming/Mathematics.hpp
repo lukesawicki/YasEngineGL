@@ -26,6 +26,12 @@ class Vector2D
     public:
         Type x;
         Type y;
+
+    Vector2D()
+    {
+        this->x = 0;
+        this->y = 0;
+    }
     Vector2D(Type x, Type y)
     {
         this->x = x;
@@ -61,7 +67,8 @@ class Vector2D
 // In OpenGL matrices are defined using column major order but it is strange that in perspective matrix it uses row major
 
 
-struct Vector3GLF {
+struct Vector3GLF
+{
     float vc0;
     float vc1;
     float vc2;
@@ -74,7 +81,8 @@ struct Vector3GLF {
 } typedef Vector3F, Vec3GLF;
 
 
-struct Vector4GLF {
+struct Vector4GLF
+{
     float vc0;
     float vc1;
     float vc2;
@@ -106,7 +114,8 @@ struct Vector4GLF {
 
 } typedef Vector4F, Vec4GLF;
 
-struct Matrix4GLF {
+struct Matrix4GLF
+{
     float me00=1.0F, me01=0.0F, me02=0.0F, me03=0.0F;
     float me10=0.0F, me11=1.0F, me12=0.0F, me13=0.0F;
     float me20=0.0F, me21=0.0F, me22=1.0F, me23=0.0F;
@@ -119,7 +128,8 @@ static float getVectorMagnitude(const Vector3GLF& vector);
 
 static Matrix4GLF multiply(const Matrix4GLF& a,const Matrix4GLF& b)
 {
-    Matrix4GLF mat = {
+    Matrix4GLF mat =
+    {
         a.me00*b.me00 + a.me01*b.me10 + a.me02*b.me20 + a.me03*b.me30, /*|*/ a.me00*b.me01 + a.me01*b.me11 + a.me02*b.me21 + a.me03*b.me31, /*|*/ a.me00*b.me02 + a.me01*b.me12 + a.me02*b.me22 + a.me03*b.me32, /*|*/ a.me00*b.me03 + a.me01*b.me13 + a.me02*b.me23 + a.me03*b.me33,
         a.me10*b.me00 + a.me11*b.me10 + a.me12*b.me20 + a.me13*b.me30, /*|*/ a.me10*b.me01 + a.me11*b.me11 + a.me12*b.me21 + a.me13*b.me31, /*|*/ a.me10*b.me02 + a.me11*b.me12 + a.me12*b.me22 + a.me13*b.me32, /*|*/ a.me10*b.me03 + a.me11*b.me13 + a.me12*b.me23 + a.me13*b.me33,
         a.me20*b.me00 + a.me21*b.me10 + a.me22*b.me20 + a.me23*b.me30, /*|*/ a.me20*b.me01 + a.me21*b.me11 + a.me22*b.me21 + a.me23*b.me31, /*|*/ a.me20*b.me02 + a.me21*b.me12 + a.me22*b.me22 + a.me23*b.me32, /*|*/ a.me20*b.me03 + a.me21*b.me13 + a.me22*b.me23 + a.me23*b.me33,
@@ -135,7 +145,8 @@ static Matrix4GLF multiply(const Matrix4GLF& a,const Matrix4GLF& b)
 //ROW MAJOR
 static Matrix4GLF buildPerspectiveMatrixGLF(const float& fieldOfViewY, const float& aspectRatio, const float& zNearPlane, const float& zFarPlane)
 {
-    Matrix4GLF mat = {
+    Matrix4GLF mat =
+    {
         static_cast<float>(1.0F / ((tan(fieldOfViewY/2.0F)) * aspectRatio)), 0.0F,                                                    0.0F,                                                                                0.0F,  //0
         0.0F,                                                                  static_cast<float>(1.0F / (tan(fieldOfViewY/2.0F))),   0.0F,                                                                                0.0F,  //1
         0.0F,                                                                  0.0F,                                                    static_cast<float>( - (zFarPlane + zNearPlane)/( zFarPlane - zNearPlane) ),        -1.0F, //2
@@ -147,7 +158,8 @@ static Matrix4GLF buildPerspectiveMatrixGLF(const float& fieldOfViewY, const flo
 //ROW MAJOR
 static Matrix4GLF buildTranslationMatrixRowMajorGLFloat(const Vector3GLF& vector)
 {
-    Matrix4GLF mat = {
+    Matrix4GLF mat =
+    {
         mat.me00 = 1.0F, mat.me01 = 0.0F, mat.me02 = 0.0F, mat.me03 = 0.0F,
         mat.me10 = 0.0F, mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = 0.0F,
         mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = 0.0F,
@@ -173,7 +185,8 @@ void normalizeVector(Vector3GLF& vector)
 
 static Matrix4GLF buildAllRotationMatrix(const float& p, const float& vc1, const float& r)
 {
-    Matrix4GLF mat = {
+    Matrix4GLF mat =
+    {
         mat.me00 = cos(r)*cos(vc1),                        mat.me01 = sin(r)*cos(vc1),                             mat.me02 = sin(vc1),         mat.me03 = 0.0F,
         mat.me10 = sin(r)*cos(p) + cos(r)*sin(vc1)*sin(p), mat.me11 = cos(r)*cos(p) -(sin(r)*sin(vc1)*sin(p)),     mat.me12 = -sin(p)*cos(vc1), mat.me13 = 0.0F,
         mat.me20 = sin(r)*sin(p) - cos(r)*sin(vc1)*cos(p), mat.me21 = cos(r)*sin(p) + sin(r)*sin(vc1)*cos(p),      mat.me22 = cos(vc1)*cos(p),  mat.me23 = 0.0F,
