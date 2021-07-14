@@ -1,46 +1,7 @@
-#ifndef MATHEMATICS_HPP
-#define MATHEMATICS_HPP
-
-
-
-template <typename T>
-int signum(T a)
-{
-    if(a > 0)
-    {
-        return 1;
-    }
-    else
-    {
-        if(a < 0)
-        {
-            return -1;
-        }
-    }
-    return 0;
-};
-
-template <typename Type>
-class Vector2D
-{
-    public:
-        Type x;
-        Type y;
-
-    Vector2D()
-    {
-        this->x = 0;
-        this->y = 0;
-    }
-    Vector2D(Type x, Type y)
-    {
-        this->x = x;
-        this->y = y;
-    }
-};
+#ifndef YASMATHLIB_HPP
+#define YASMATHLIB_HPP
 
 #include<cmath>
-
 
 //-----------------------------------------------------------------------------|---------------------------------------|
 //                                                                            80                                     120
@@ -69,9 +30,9 @@ class Vector2D
 
 struct Vector3GLF
 {
-    float vc0;
-    float vc1;
-    float vc2;
+    GLfloat vc0;
+    GLfloat vc1;
+    GLfloat vc2;
     Vector3GLF(float vc0, float vc1, float vc2)
     {
         this->vc0 = vc0;
@@ -80,51 +41,17 @@ struct Vector3GLF
     }
 } typedef Vector3F, Vec3GLF;
 
-
-struct Vector4GLF
-{
-    float vc0;
-    float vc1;
-    float vc2;
-    float vc3;
-
-    Vector4GLF()
-    {
-        this->vc0=0.0F;
-        this->vc1=0.0F;
-        this->vc2=0.0F;
-        this->vc3=1.0F;
-    }
-
-    Vector4GLF(float vc0, float vc1, float vc2, float vc3)
-    {
-        this->vc0 = vc0;
-        this->vc1 = vc1;
-        this->vc2 = vc2;
-        this->vc3 = vc3;
-    }
-
-    Vector4GLF(const Vector3GLF& vector3glf)
-    {
-        this->vc0 = vector3glf.vc0;
-        this->vc1 = vector3glf.vc1;
-        this->vc2 = vector3glf.vc2;
-        this->vc3 = 1;
-    }
-
-} typedef Vector4F, Vec4GLF;
-
 struct Matrix4GLF
 {
-    float me00=1.0F, me01=0.0F, me02=0.0F, me03=0.0F;
-    float me10=0.0F, me11=1.0F, me12=0.0F, me13=0.0F;
-    float me20=0.0F, me21=0.0F, me22=1.0F, me23=0.0F;
-    float me30=0.0F, me31=0.0F, me32=0.0F, me33=1.0F;
+    GLfloat me00=1.0F, me01=0.0F, me02=0.0F, me03=0.0F;
+    GLfloat me10=0.0F, me11=1.0F, me12=0.0F, me13=0.0F;
+    GLfloat me20=0.0F, me21=0.0F, me22=1.0F, me23=0.0F;
+    GLfloat me30=0.0F, me31=0.0F, me32=0.0F, me33=1.0F;
 
 } typedef Mat4GLF;
 
 static void normalizeVector(Vector3GLF& vector);
-static float getVectorMagnitude(const Vector3GLF& vector);
+static GLfloat getVectorMagnitude(const Vector3GLF& vector);
 
 static Matrix4GLF multiply(const Matrix4GLF& a,const Matrix4GLF& b)
 {
@@ -147,10 +74,10 @@ static Matrix4GLF buildPerspectiveMatrixGLF(const float& fieldOfViewY, const flo
 {
     Matrix4GLF mat =
     {
-        static_cast<float>(1.0F / ((tan(fieldOfViewY/2.0F)) * aspectRatio)), 0.0F,                                                    0.0F,                                                                                0.0F,  //0
-        0.0F,                                                                  static_cast<float>(1.0F / (tan(fieldOfViewY/2.0F))),   0.0F,                                                                                0.0F,  //1
-        0.0F,                                                                  0.0F,                                                    static_cast<float>( - (zFarPlane + zNearPlane)/( zFarPlane - zNearPlane) ),        -1.0F, //2
-        0.0F,                                                                  0.0F,                                                    static_cast<float>(- (2 * zFarPlane * zNearPlane) / (zFarPlane - zNearPlane) ),    0.0F   //3
+        static_cast<GLfloat>(1.0F / ((tan(fieldOfViewY/2.0F)) * aspectRatio)), 0.0F,                                                    0.0F,                                                                                0.0F,  //0
+        0.0F,                                                                  static_cast<GLfloat>(1.0F / (tan(fieldOfViewY/2.0F))),   0.0F,                                                                                0.0F,  //1
+        0.0F,                                                                  0.0F,                                                    static_cast<GLfloat>( - (zFarPlane + zNearPlane)/( zFarPlane - zNearPlane) ),        -1.0F, //2
+        0.0F,                                                                  0.0F,                                                    static_cast<GLfloat>(- (2 * zFarPlane * zNearPlane) / (zFarPlane - zNearPlane) ),    0.0F   //3
     };
     return mat;
 }
@@ -169,14 +96,14 @@ static Matrix4GLF buildTranslationMatrixRowMajorGLFloat(const Vector3GLF& vector
     return mat;
 }
 
-float getVectorMagnitude(const Vector3GLF& vector)
+GLfloat getVectorMagnitude(const Vector3GLF& vector)
 {
     return sqrt(pow(vector.vc0, 2) + pow(vector.vc1, 2) + pow(vector.vc2, 2));
 }
 
 void normalizeVector(Vector3GLF& vector)
 {
-    float vectorMagnitude = getVectorMagnitude(vector);
+    GLfloat vectorMagnitude = getVectorMagnitude(vector);
     vector.vc0 = vector.vc0 / vectorMagnitude;
     vector.vc1 = vector.vc1 / vectorMagnitude;
     vector.vc2 = vector.vc2 / vectorMagnitude;
@@ -223,31 +150,150 @@ static Matrix4GLF rotationAroundArbitraryAxies(Vector3GLF axisVector, const floa
     return mat;
 }
 
-static Vector4GLF vectorMultiplyedByMatrix(Vector4GLF vector4glf, Matrix4GLF mat)
-{
-    return Vector4GLF
-    (
-        vector4glf.vc0 * mat.me00 + vector4glf.vc1 * mat.me10 + vector4glf.vc2 * mat.me20 + vector4glf.vc3 * mat.me30,
-        vector4glf.vc0 * mat.me01 + vector4glf.vc1 * mat.me11 + vector4glf.vc2 * mat.me21 + vector4glf.vc3 * mat.me31,
-        vector4glf.vc0 * mat.me02 + vector4glf.vc1 * mat.me12 + vector4glf.vc2 * mat.me22 + vector4glf.vc3 * mat.me32,
-        vector4glf.vc0 * mat.me03 + vector4glf.vc1 * mat.me13 + vector4glf.vc2 * mat.me23 + vector4glf.vc3 * mat.me33
-    );
-}
+#endif YASMATHLIB_HPP
 
-static Vector4GLF matrixMultiplyedByVector(Matrix4GLF mat, Vector4GLF vector4glf)
-{
-    return Vector4GLF
-    (
-        mat.me00 * vector4glf.vc0 + mat.me01 * vector4glf.vc1 + mat.me02 * vector4glf.vc2 + mat.me03 * vector4glf.vc3,
-        mat.me10 * vector4glf.vc0 + mat.me11 * vector4glf.vc1 + mat.me12 * vector4glf.vc2 + mat.me13 * vector4glf.vc3,
-        mat.me20 * vector4glf.vc0 + mat.me21 * vector4glf.vc1 + mat.me22 * vector4glf.vc2 + mat.me23 * vector4glf.vc3,
-        mat.me30 * vector4glf.vc0 + mat.me31 * vector4glf.vc1 + mat.me32 * vector4glf.vc2 + mat.me33 * vector4glf.vc3
-    );
+//                                                                            80                                     120
+//-----------------------------------------------------------------------------|---------------------------------------|
 
-}
 
-Vector2D<float>* toWindowCoordinates(float x, float y, int windowWidth, int windowHeight) {
-    return new Vector2D<float>(x + (windowWidth/2.0F), (windowHeight/2.0F) - y );
-}
+//----------------------------------------------------------------------------------------------------------------------
+//---------------------------------------Temporary notes and code fragments---------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
-#endif
+//struct Vector4GLF {
+//    GLfloat vc0;
+//    GLfloat vc1;
+//    GLfloat vc2;
+//    GLfloat vc3;
+//    Vector4GLF(float vc0, float vc1, float vc2, float vc3)
+//    {
+//        this->vc0 = vc0;
+//        this->vc1 = vc1;
+//        this->vc2 = vc2;
+//        this->vc3 = vc3;
+//    }
+//} typedef Vector4GLF, Vec4GLF;
+
+//static Matrix4GLF buildTranslationMatrixRowMajorGLFloat(const GLfloat& vc0, const GLfloat& vc1, const GLfloat&  vc2)
+//{
+//    Matrix4GLF mat = {
+//        mat.me00 = 1.0F, mat.me01 = 0.0F, mat.me02 = 0.0F, mat.me03 = 0.0F,
+//        mat.me10 = 0.0F, mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = 0.0F,
+//        mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = 0.0F,
+//        mat.me30 = vc0,    mat.me31 = vc1,    mat.me32 = vc2,    mat.me33 = 1.0F
+//    };
+//
+//    return mat;
+//}
+
+//static Matrix4GLF buildTranslationMatrixColumnMajorGLFloat(const GLfloat& vc0, const GLfloat& vc1, const GLfloat&  vc2)
+//{
+//    Matrix4GLF mat = {
+//        mat.me00 = 1.0F, mat.me01 = 0.0F, mat.me02 = 0.0F, mat.me03 = vc0,
+//        mat.me10 = 0.0F, mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = vc1,
+//        mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = vc2,
+//        mat.me30 = 0.0F, mat.me31 = 0.0F, mat.me32 = 0.0,  mat.me33 = 1.0F
+//    };
+//    
+//    return mat;
+//}
+//
+//static Matrix4GLF buildTranslationMatrixColumnMajorGLFloat(const Vector3GLF& vector)
+//{
+//    Matrix4GLF mat = {
+//        mat.me00 = 1.0F, mat.me01 = 0.0F, mat.me02 = 0.0F, mat.me03 = vector.vc0,
+//        mat.me10 = 0.0F, mat.me11 = 1.0F, mat.me12 = 0.0F, mat.me13 = vector.vc1,
+//        mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me22 = 1.0F, mat.me23 = vector.vc2,
+//        mat.me30 = 0.0F, mat.me31 = 0.0F, mat.me32 = 0.0,  mat.me33 = 1.0F
+//    };
+//    
+//    return mat;
+//}
+
+//static void transpose(Matrix4GLF &mat);
+//static void transpose(Matrix4GLF &mat)
+//{
+//    Matrix4GLF matCopy;
+//
+//    matCopy.me00=mat.me00; matCopy.me10=mat.me10; matCopy.me20=mat.me20; matCopy.me30=mat.me30;
+//    matCopy.me10=mat.me01; matCopy.me11=mat.me11; matCopy.me21=mat.me21; matCopy.me31=mat.me31;
+//    matCopy.me20=mat.me02; matCopy.me12=mat.me12; matCopy.me22=mat.me22; matCopy.me32=mat.me32;
+//    matCopy.me30=mat.me03; matCopy.me13=mat.me13; matCopy.me23=mat.me23; matCopy.me33=mat.me33;
+//
+//    mat.me00=matCopy.me00; mat.me01=matCopy.me10; mat.me02=matCopy.me20; mat.me03=matCopy.me30;
+//    mat.me10=matCopy.me01; mat.me11=matCopy.me11; mat.me12=matCopy.me21; mat.me13=matCopy.me31;
+//    mat.me20=matCopy.me02; mat.me21=matCopy.me12; mat.me22=matCopy.me22; mat.me23=matCopy.me32;
+//    mat.me30=matCopy.me03; mat.me31=matCopy.me13; mat.me32=matCopy.me23; mat.me33=matCopy.me33;
+//}
+
+//// Rotate around X axis
+//static Matrix4GLF buildPitchMatrix(const float& rad)
+//{
+//    Matrix4GLF mat = {
+//        mat.me00 = 1.0F, mat.me01 = 0.0F,     mat.me02 = 0.0F,      mat.me03 = 0.0F,
+//        mat.me10 = 0.0F, mat.me11 = cos(rad), mat.me12 = -sin(rad), mat.me13 = 0.0F,
+//        mat.me20 = 0.0F, mat.me21 = sin(rad), mat.me22 = cos(rad),  mat.me23 = 0.0F,
+//        mat.me30 = 0.0F, mat.me31 = 0.0F,     mat.me32 = 0.0F,      mat.me33 = 1.0F,
+//    };
+//    return mat;
+//}
+//
+//// Rotate around Y axis
+//static Matrix4GLF buildYawMatrix(const float& rad)
+//{
+//    Matrix4GLF mat = {
+//        mat.me00 = cos(rad),  mat.me01 = 0.0F, mat.me02 = sin(rad), mat.me03 = 0.0F,
+//        mat.me10 = 0.0F,      mat.me11 = 1.0F, mat.me12 = 0.0F,     mat.me13 = 0.0F,
+//        mat.me20 = -sin(rad), mat.me21 = 0.0F, mat.me22 = cos(rad), mat.me23 = 0.0F,
+//        mat.me30 = 0.0F,      mat.me31 = 0.0F, mat.me32 = 0.0F,     mat.me33 = 1.0F,
+//    };
+//    return mat;
+//}
+//
+//// Rotate around Z axis
+//static Matrix4GLF buildRollMatrix(const float& rad)
+//{
+//    Matrix4GLF mat = {
+//        mat.me00 = cos(rad), mat.me01 = -sin(rad), mat.me02 = 0.0F, mat.me03 = 0.0F,
+//        mat.me10 = sin(rad), mat.me11 = cos(rad),  mat.me12 = 0.0F, mat.me13 = 0.0F,
+//        mat.me20 = 0.0F,     mat.me21 = 0.0F,      mat.me22 = 1.0F, mat.me23 = 0.0F,
+//        mat.me30 = 0.0F,     mat.me31 = 0.0F,      mat.me32 = 0.0F, mat.me33 = 1.0F,
+//    };
+//    return mat;
+//}
+
+////Scale
+//static Matrix4GLF buildScaleMatrix(const float& vc0, const float& vc1, const float& vc2)
+//{
+//    Matrix4GLF mat =
+//    {
+//        mat.me00 = vc0,  mat.me01 = 0.0F, mat.me01 = 0.0F, mat.me01 = 0.0F,
+//        mat.me10 = 0.0F, mat.me11 = vc1,  mat.me11 = 0.0F, mat.me11 = 0.0F,
+//        mat.me20 = 0.0F, mat.me21 = 0.0F, mat.me21 = vc2,  mat.me21 = 0.0F,
+//        mat.me30 = 0.0F, mat.me31 = 0.0F, mat.me31 = 0.0F, mat.me31 = 1.0F,
+//    };
+//
+//    return mat;
+//}
+
+// Right handed
+
+// Row major
+
+// Column major
+
+//----------------------------------------------------------------------------------------------------------------------
+
+// Left handed
+
+// Row major
+
+// Column major
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//---------------------------------------End of temporary notes and code fragments--------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
+
+//                                                                            80                                     120
+//-----------------------------------------------------------------------------|---------------------------------------|

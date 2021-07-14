@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YasEngineGL", "YasEngineGL\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicsOfGraphicsProgramming", "BasicsOfGraphicsProgramming\BasicsOfGraphicsProgramming.vcxproj", "{CACF2845-6C8B-485F-9EC9-2A3A88798E53}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "YasEngineSoftware", "YasEngineSoftware\YasEngineSoftware.vcxproj", "{A1D57BFB-6144-4ED5-80F9-CA7597188C0A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{CACF2845-6C8B-485F-9EC9-2A3A88798E53}.Release|x64.Build.0 = Release|x64
 		{CACF2845-6C8B-485F-9EC9-2A3A88798E53}.Release|x86.ActiveCfg = Release|Win32
 		{CACF2845-6C8B-485F-9EC9-2A3A88798E53}.Release|x86.Build.0 = Release|Win32
+		{A1D57BFB-6144-4ED5-80F9-CA7597188C0A}.Debug|x64.ActiveCfg = Debug|x64
+		{A1D57BFB-6144-4ED5-80F9-CA7597188C0A}.Debug|x64.Build.0 = Debug|x64
+		{A1D57BFB-6144-4ED5-80F9-CA7597188C0A}.Debug|x86.ActiveCfg = Debug|Win32
+		{A1D57BFB-6144-4ED5-80F9-CA7597188C0A}.Debug|x86.Build.0 = Debug|Win32
+		{A1D57BFB-6144-4ED5-80F9-CA7597188C0A}.Release|x64.ActiveCfg = Release|x64
+		{A1D57BFB-6144-4ED5-80F9-CA7597188C0A}.Release|x64.Build.0 = Release|x64
+		{A1D57BFB-6144-4ED5-80F9-CA7597188C0A}.Release|x86.ActiveCfg = Release|Win32
+		{A1D57BFB-6144-4ED5-80F9-CA7597188C0A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
