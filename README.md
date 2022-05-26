@@ -1,4 +1,11 @@
 # YasEngineGL
+
+**** ATTENTION! **** CURRENTLY WORKING ON YasEngine with software renderer. Currently, regulary updated repositorium is:
+https://github.com/lukesawicki/YasEngineSoftware
+
+
+
+
 This version of YasEngine, the OpenGL version, it is just for learning purpose.
 My assumption was that I will start learning from immediately from 3D.
 But it is not a easiest way to start learning from 3D and Vulkan at the sime time.
